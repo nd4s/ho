@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Моніторинг Світла</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;800;900&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            /* CORPORATE PALETTE */
+            --corp-red: #b80000;       /* IMPORTANT HEADERS */
+            --corp-black: #000000;     /* MAIN TEXT / ICONS */
+            --corp-blue: #002366;      /* INFO / DATA / URLs */
+            --bg-white: #ffffff;       /* BACKGROUND */
+        }
+
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            outline: none;
+        }
+
+        body {
+            background-color: var(--bg-white);
+            font-family: 'Montserrat', sans-serif;
+            margin: 0;
+            padding: 0;
+            /* STRICT NO-SCROLL LAYOUT */
+            width: 100vw;
+            height: 100vh;
+            height: 100dvh; /* Mobile browser support */
+            overflow: hidden;
+            overscroll-behavior: none;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Top Brand Bar (Optional visual anchor) */
+        .brand-line {
+            width: 100%;
+            height: 6px;
+            background-color: var(--corp-red);
+            flex-shrink: 0;
+        }
+
+        /* Main Container: Flexbox to distribute space perfectly */
+        .container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-evenly; /* Distribute vertical space */
+            align-items: center;
+            padding: 2vh 5vw;
+            text-align: center;
+        }
+
+        /* 1. HEADER SECTION (Red) */
+        .header-section {
+            flex-shrink: 0;
+        }
+
+        h1 {
+            margin: 0;
+            padding: 0;
+            color: var(--corp-red); /* CORPORATE RED */
+            font-size: 9vmin;      /* Responsive scaling */
+            font-weight: 900;
+            text-transform: uppercase;
+            line-height: 1;
+            letter-spacing: -1px;
+        }
+
+        .status-sub {
+            color: var(--corp-black);
+            font-size: 4vmin;
+            font-weight: 600;
+            margin-top: 1vh;
+            opacity: 0.8;
+        }
+
+        /* 2. ICON SECTION (Black) */
+        .icon-section {
+            flex-grow: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            max-height: 35vh;
+        }
+
+        .icon {
+            font-size: 25vmin; /* Huge visibility */
+            color: var(--corp-black);
+            line-height: 1;
+            transition: transform 0.3s ease;
+        }
+
+        /* 3. INFO SECTION (Dark Blue Data) */
+        .info-section {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 2vh;
+            flex-shrink: 0;
+            padding-bottom: 2vh;
+        }
+
+        .info-card {
+            border-left: 6px solid var(--corp-red); /* Red accent */
+            background: #f4f6f9; /* Very light grey contrast */
+            padding: 1.5vh 2vh;
+            border-radius: 0 12px 12px 0;
+            text-align: left;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .info-label {
+            color: var(--corp-black);
+            font-size: 3vmin;
+            font-weight: 600;
+            text-transform: uppercase;
+            margin-bottom: 0.5vh;
+        }
+
+        .info-value {
+            color: var(--corp-blue); /* DARK BLUE FOR DATA */
+            font-size: 6.5vmin;
+            font-weight: 800;
+            line-height: 1;
+        }
+
+        .info-detail {
+            color: var(--corp-blue);
+            font-size: 3.2vmin;
+            font-weight: 600;
+            margin-top: 0.5vh;
+        }
+
+        /* Animations & States */
+        .pulse {
+            animation: pulse-shadow 2s infinite;
+        }
+
+        @keyframes pulse-shadow {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.05); opacity: 0.9; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .loader {
+            border: 8px solid #f3f3f3;
+            border-top: 8px solid var(--corp-red);
+            border-radius: 50%;
+            width: 12vmin;
+            height: 12vmin;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Landscape Adjustment for Phones */
+        @media (orientation: landscape) and (max-height: 600px) {
+            .container { flex-direction: row; align-items: center; }
+            .header-section { width: 40%; text-align: right; padding-right: 20px; }
+            .icon-section { width: 20%; max-height: 100%; }
+            .info-section { width: 40%; text-align: left; }
+            h1 { font-size: 8vh; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="brand-line"></div>
+
+    <div class="container">
+        
+        <!-- LOADER -->
+        <div id="loader" class="loader"></div>
+
+        <!-- APP CONTENT (Hidden on Load) -->
+        <div id="content" style="display: none; width: 100%; height: 100%; flex-direction: column; justify-content: space-evenly;">
+            
+            <!-- HEADER -->
+            <div class="header-section">
+                <h1 id="main-status">ЗАВАНТАЖЕННЯ</h1>
+                <div class="status-sub" id="sub-status">Отримання даних...</div>
+            </div>
+
+            <!-- ICON -->
+            <div class="icon-section">
+                <div id="icon" class="icon">❓</div>
+            </div>
+
+            <!-- INFO -->
+            <div class="info-section">
+                
+                <!-- UPTIME BOX (Visible when ON) -->
+                <div id="uptime-box" class="info-card" style="display: none;">
+                    <span class="info-label">Світло з'явилось:</span>
+                    <span class="info-value" id="start-time-text">--:--</span>
+                    <span class="info-detail" id="duration-text">...</span>
+                </div>
+
+                <!-- SIGNAL BOX (Always Visible) -->
+                <div class="info-card">
+                    <span class="info-label">Останній сигнал:</span>
+                    <span class="info-value" id="last-time">--:--</span>
+                    <span class="info-detail" id="time-ago">...</span>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        const SHEET_ID = '1dvry2DONNZH4bsvQlus4izxZUwRD0HAynOGJEM3zi70';
+        const MAX_INTERVAL_MINUTES = 35; 
+
+        // Helper: Parse Google Visualization Date
+        function parseGoogleDate(rawValue) {
+            if (typeof rawValue === 'string' && rawValue.indexOf('Date') !== -1) {
+                const parts = rawValue.match(/\d+/g).map(Number);
+                // Month is 0-indexed
+                return new Date(parts[0], parts[1], parts[2], parts[3], parts[4], parts[5]);
+            }
+            return new Date(rawValue);
+        }
+
+        window.loadData = function(json) {
+            try {
+                if (!json.table || !json.table.rows || json.table.rows.length === 0) {
+                    throw new Error("No Data");
+                }
+
+                // Parse dates
+                let dates = json.table.rows.map(row => {
+                    if (row.c && row.c[0] && row.c[0].v) {
+                        return parseGoogleDate(row.c[0].v);
+                    }
+                    return null;
+                }).filter(d => d !== null && !isNaN(d.getTime()));
+
+                if (dates.length === 0) throw new Error("No Valid Dates");
+
+                // Sort Descending
+                dates.sort((a, b) => b - a);
+
+                const lastDate = dates[0];
+                let sessionStartDate = lastDate;
+
+                // Determine session start
+                for (let i = 0; i < dates.length - 1; i++) {
+                    const current = dates[i];
+                    const previous = dates[i+1];
+                    const diffMins = (current - previous) / (1000 * 60);
+
+                    if (diffMins > MAX_INTERVAL_MINUTES) {
+                        sessionStartDate = current; 
+                        break; 
+                    }
+                    sessionStartDate = previous;
+                }
+
+                updateUI(lastDate, sessionStartDate, new Date());
+
+            } catch (error) {
+                console.error(error);
+                showError();
+            }
+        };
+
+        function fetchData() {
+            const oldScript = document.getElementById('gviz-script');
+            if (oldScript) oldScript.remove();
+
+            const script = document.createElement('script');
+            script.id = 'gviz-script';
+            script.src = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=responseHandler:loadData&tq=select%20A%20order%20by%20A%20desc`;
+            script.onerror = showError;
+            document.body.appendChild(script);
+        }
+
+        function updateUI(lastDate, startDate, now) {
+            const diffMs = now - lastDate;
+            const diffMins = Math.floor(diffMs / 1000 / 60);
+
+            const iconEl = document.getElementById('icon');
+            const mainStatusEl = document.getElementById('main-status');
+            const subStatusEl = document.getElementById('sub-status');
+            const lastTimeEl = document.getElementById('last-time');
+            const timeAgoEl = document.getElementById('time-ago');
+            const loader = document.getElementById('loader');
+            const content = document.getElementById('content');
+            const contentFlex = content; // Keep reference for display style
+
+            const uptimeBox = document.getElementById('uptime-box');
+            const startTimeText = document.getElementById('start-time-text');
+            const durationText = document.getElementById('duration-text');
+
+            const timeFormatter = new Intl.DateTimeFormat('uk-UA', { 
+                hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit'
+            });
+
+            lastTimeEl.innerText = timeFormatter.format(lastDate);
+
+            // LOGIC
+            if (diffMins <= MAX_INTERVAL_MINUTES) {
+                // === ON ===
+                iconEl.innerHTML = '💡';
+                iconEl.className = 'icon pulse';
+                mainStatusEl.innerText = 'СВІТЛО Є!';
+                subStatusEl.innerText = 'Система працює стабільно';
+
+                uptimeBox.style.display = 'flex';
+                startTimeText.innerText = timeFormatter.format(startDate);
+
+                const durationMs = now - startDate;
+                const h = Math.floor(durationMs / 3600000);
+                const m = Math.floor((durationMs % 3600000) / 60000);
+                durationText.innerText = `Тривалість: ${h} год ${m} хв`;
+
+            } else {
+                // === OFF ===
+                iconEl.innerHTML = '🌑';
+                iconEl.className = 'icon';
+                mainStatusEl.innerText = 'СВІТЛА НЕМАЄ';
+                
+                uptimeBox.style.display = 'none';
+
+                if (diffMins > 60) {
+                     subStatusEl.innerText = 'Немає зв\'язку > 1 год';
+                } else {
+                     subStatusEl.innerText = 'Зв\'язок втрачено';
+                }
+            }
+
+            // Time Ago
+            if (diffMins < 1) timeAgoEl.innerText = 'Щойно';
+            else if (diffMins < 60) timeAgoEl.innerText = `${diffMins} хв. тому`;
+            else {
+                const h = Math.floor(diffMins / 60);
+                const m = diffMins % 60;
+                timeAgoEl.innerText = `${h} год ${m} хв тому`;
+            }
+
+            loader.style.display = 'none';
+            // Important: Use flex to maintain layout
+            contentFlex.style.display = 'flex'; 
+        }
+
+        function showError() {
+            document.getElementById('loader').style.display = 'none';
+            document.getElementById('content').style.display = 'flex';
+            
+            document.getElementById('main-status').innerText = 'ПОМИЛКА';
+            document.getElementById('sub-status').innerText = 'Немає даних';
+            document.getElementById('icon').innerHTML = '⚠️';
+        }
+
+        fetchData();
+        setInterval(fetchData, 60000); // Auto-refresh every minute
+    </script>
+</body>
+</html>
