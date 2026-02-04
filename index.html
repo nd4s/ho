@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Моніторинг Району</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;800;900&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --corp-red: #b80000;
+            --corp-black: #000000;
+            --corp-blue: #002366;
+            --bg-white: #ffffff;
+            --card-bg: #f4f6f9;
+            --border-radius: 16px;
+        }
+
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            outline: none;
+        }
+
+        body {
+            background-color: var(--bg-white);
+            font-family: 'Montserrat', sans-serif;
+            margin: 0;
+            padding: 0;
+            width: 100vw;
+            height: 100vh;
+            height: 100dvh;
+            overflow: hidden; /* No scroll */
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Top Brand Bar */
+        .brand-line {
+            width: 100%;
+            height: 6px;
+            background-color: var(--corp-red);
+            flex-shrink: 0;
+        }
+
+        /* Main Container */
+        .container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 1.5vh 3vw;
+            gap: 1.5vh;
+        }
+
+        /* Header */
+        .header-section {
+            flex-shrink: 0;
+            text-align: center;
+            padding-bottom: 0.5vh;
+        }
+
+        h1 {
+            color: var(--corp-black);
+            font-size: 5vmin;
+            font-weight: 900;
+            margin: 0;
+            text-transform: uppercase;
+        }
+
+        .header-sub {
+            color: var(--corp-red);
+            font-size: 3vmin;
+            font-weight: 700;
+        }
+
+        /* CARDS CONTAINER */
+        .cards-wrapper {
+            flex: 1;
+            display: flex;
+            flex-direction: column; /* Stack vertically on mobile */
+            gap: 1.5vh;
+            justify-content: center;
+        }
+
+        /* INDIVIDUAL CARD */
+        .location-card {
+            flex: 1; /* Take equal space (50/50) */
+            background: var(--card-bg);
+            border-radius: var(--border-radius);
+            padding: 2vh 3vw;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: space-between;
+            position: relative;
+            border-left: 8px solid #ccc; /* Default grey */
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        }
+
+        .location-card.status-on {
+            border-left-color: #28a745; /* Green accent */
+            background: #eefcf2;
+        }
+
+        .location-card.status-off {
+            border-left-color: var(--corp-red); /* Red accent */
+            background: #fff0f0;
+        }
+
+        /* LEFT SIDE OF CARD (Text) */
+        .card-info {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            text-align: left;
+            width: 65%;
+        }
+
+        .loc-name {
+            font-size: 3.5vmin;
+            font-weight: 800;
+            color: var(--corp-black);
+            text-transform: uppercase;
+            margin-bottom: 0.5vh;
+        }
+
+        .loc-status {
+            font-size: 5.5vmin;
+            font-weight: 900;
+            line-height: 1;
+            margin-bottom: 1vh;
+        }
+
+        .status-on .loc-status { color: #155724; }
+        .status-off .loc-status { color: var(--corp-red); }
+
+        .loc-details {
+            font-size: 3vmin;
+            color: var(--corp-blue);
+            font-weight: 600;
+        }
+
+        .loc-sub {
+            font-size: 2.8vmin;
+            color: #666;
+            margin-top: 0.5vh;
+        }
+
+        /* RIGHT SIDE OF CARD (Icon) */
+        .card-icon {
+            width: 35%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 14vmin;
+        }
+
+        /* LOADER */
+        .loader-overlay {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(255,255,255,0.9);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10;
+        }
+        .spinner {
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid var(--corp-red);
+            border-radius: 50%;
+            width: 8vmin; height: 8vmin;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* PULSE ANIMATION */
+        .pulse { animation: pulse-anim 2s infinite; }
+        @keyframes pulse-anim {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.1); opacity: 0.8; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        /* LANDSCAPE TWEAK */
+        @media (orientation: landscape) and (max-height: 600px) {
+            .cards-wrapper { flex-direction: row; }
+            .location-card { height: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="brand-line"></div>
+
+    <div class="container">
+        
+        <div class="header-section">
+            <h1>Стан Мережі</h1>
+            <div class="header-sub">Моніторинг в реальному часі</div>
+        </div>
+
+        <div class="cards-wrapper">
+            
+            <!-- CARD 1: MAIN CORPS -->
+            <div id="card-main" class="location-card">
+                <div id="loader-main" class="loader-overlay"><div class="spinner"></div></div>
+                
+                <div class="card-info">
+                    <div class="loc-name">Головний Корпус</div>
+                    <div class="loc-status" id="status-main">...</div>
+                    <div class="loc-details" id="time-main">Оновлення...</div>
+                    <div class="loc-sub" id="detail-main"></div>
+                </div>
+                
+                <div class="card-icon">
+                    <div id="icon-main">❓</div>
+                </div>
+            </div>
+
+            <!-- CARD 2: CHEM FACULTY -->
+            <div id="card-chem" class="location-card">
+                <div id="loader-chem" class="loader-overlay"><div class="spinner"></div></div>
+                
+                <div class="card-info">
+                    <div class="loc-name">Хімічний Фак.</div>
+                    <div class="loc-status" id="status-chem">...</div>
+                    <div class="loc-details" id="time-chem">Оновлення...</div>
+                    <div class="loc-sub" id="detail-chem"></div>
+                </div>
+                
+                <div class="card-icon">
+                    <div id="icon-chem">❓</div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        // --- CONFIGURATION ---
+        
+        // SOURCE 1: Main (Original)
+        const CONF_MAIN = {
+            id: 'main',
+            sheetId: '1OtGMcLwI1qeHg6k-EWCr2D9EG_IfR8LpA_J2PWTTPXU',
+            maxGapMins: 35, // Original logic
+        };
+
+        // SOURCE 2: Chem (New - Checks every 15m)
+        const CONF_CHEM = {
+            id: 'chem',
+            sheetId: '1unSgxK5BXlGoYZsJSBJpESTVIZXJc09acC8GxjGqDIQ', 
+            maxGapMins: 20, // 15m check + 5m buffer
+        };
+
+        // --- CORE FUNCTIONS ---
+
+        function parseGoogleDate(rawValue) {
+            if (typeof rawValue === 'string' && rawValue.indexOf('Date') !== -1) {
+                const parts = rawValue.match(/\d+/g).map(Number);
+                return new Date(parts[0], parts[1], parts[2], parts[3], parts[4], parts[5]);
+            }
+            return new Date(rawValue);
+        }
+
+        function processData(json, conf) {
+            try {
+                if (!json.table || !json.table.rows || json.table.rows.length === 0) throw new Error("Empty Data");
+
+                // Extract valid dates
+                let dates = json.table.rows.map(row => {
+                    if (row.c && row.c[0] && row.c[0].v) return parseGoogleDate(row.c[0].v);
+                    return null;
+                }).filter(d => d !== null && !isNaN(d.getTime()));
+
+                if (dates.length === 0) throw new Error("No Dates");
+
+                // Sort Descending (Newest first)
+                dates.sort((a, b) => b - a);
+
+                const lastDate = dates[0];
+                let sessionStartDate = lastDate;
+
+                // Determine session duration
+                for (let i = 0; i < dates.length - 1; i++) {
+                    const current = dates[i];
+                    const previous = dates[i+1];
+                    const diffMins = (current - previous) / (1000 * 60);
+
+                    if (diffMins > conf.maxGapMins) {
+                        sessionStartDate = current; 
+                        break; 
+                    }
+                    sessionStartDate = previous;
+                }
+
+                updateCard(conf, lastDate, sessionStartDate, new Date());
+
+            } catch (error) {
+                console.error(conf.id, error);
+                showError(conf.id);
+            }
+        }
+
+        function updateCard(conf, lastDate, startDate, now) {
+            const id = conf.id;
+            const diffMs = now - lastDate;
+            const diffMins = Math.floor(diffMs / 1000 / 60);
+            
+            // Elements
+            const cardEl = document.getElementById(`card-${id}`);
+            const statusEl = document.getElementById(`status-${id}`);
+            const timeEl = document.getElementById(`time-${id}`);
+            const detailEl = document.getElementById(`detail-${id}`);
+            const iconEl = document.getElementById(`icon-${id}`);
+            const loaderEl = document.getElementById(`loader-${id}`);
+
+            // Formatter
+            const timeFmt = new Intl.DateTimeFormat('uk-UA', { hour:'2-digit', minute:'2-digit' });
+
+            // LOGIC
+            const isOnline = diffMins <= conf.maxGapMins;
+
+            if (isOnline) {
+                // === ON ===
+                cardEl.className = 'location-card status-on';
+                statusEl.innerText = 'СВІТЛО Є';
+                iconEl.innerHTML = '💡';
+                iconEl.className = 'card-icon pulse';
+
+                // Duration Calculation
+                const durationMs = now - startDate;
+                const h = Math.floor(durationMs / 3600000);
+                const m = Math.floor((durationMs % 3600000) / 60000);
+                
+                timeEl.innerText = `Триває: ${h}год ${m}хв`;
+                detailEl.innerText = `Останній сигнал: ${timeFmt.format(lastDate)}`;
+            } else {
+                // === OFF ===
+                cardEl.className = 'location-card status-off';
+                statusEl.innerText = 'СВІТЛА НЕМАЄ';
+                iconEl.innerHTML = '🌑';
+                iconEl.className = 'card-icon';
+
+                // Time Ago
+                if (diffMins < 60) timeEl.innerText = `${diffMins} хв. тому`;
+                else {
+                    const h = Math.floor(diffMins / 60);
+                    const m = diffMins % 60;
+                    timeEl.innerText = `${h}год ${m}хв тому`;
+                }
+                detailEl.innerText = `Зв'язок втрачено о ${timeFmt.format(lastDate)}`;
+            }
+
+            loaderEl.style.display = 'none';
+        }
+
+        function showError(id) {
+            document.getElementById(`loader-${id}`).style.display = 'none';
+            document.getElementById(`status-${id}`).innerText = 'ПОМИЛКА';
+            document.getElementById(`detail-${id}`).innerText = 'Дані недоступні';
+            document.getElementById(`icon-${id}`).innerHTML = '⚠️';
+        }
+
+        // --- FETCHERS ---
+        // Note: Google Viz uses JSONP. We need global callbacks.
+        
+        window.loadMain = function(json) { processData(json, CONF_MAIN); };
+        window.loadChem = function(json) { processData(json, CONF_CHEM); };
+
+        function refreshAll() {
+            // Fetch Main
+            const script1 = document.createElement('script');
+            script1.src = `https://docs.google.com/spreadsheets/d/${CONF_MAIN.sheetId}/gviz/tq?tqx=responseHandler:loadMain&tq=select%20A%20order%20by%20A%20desc%20limit%20100`;
+            document.body.appendChild(script1);
+            
+            // Fetch Chem
+            const script2 = document.createElement('script');
+            // Adding random param to prevent caching
+            script2.src = `https://docs.google.com/spreadsheets/d/${CONF_CHEM.sheetId}/gviz/tq?tqx=responseHandler:loadChem&tq=select%20A%20order%20by%20A%20desc%20limit%20100&_=${Date.now()}`;
+            document.body.appendChild(script2);
+        }
+
+        // Init
+        refreshAll();
+        // Refresh every 60s
+        setInterval(refreshAll, 60000);
+
+    </script>
+</body>
+</html>
