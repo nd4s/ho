@@ -560,13 +560,13 @@
         .modal-footer {
             padding: 0 30px 30px 30px;
             flex-shrink: 0;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
+            display: flex; /* Changed from Grid to Flex for dynamic width */
             gap: 12px;
         }
         .modal-btn {
             border: none; padding: 14px 0;
-            font-size: 14px; font-weight: 700; border-radius: 14px; cursor: pointer; width: 100%;
+            font-size: 14px; font-weight: 700; border-radius: 14px; cursor: pointer; 
+            flex: 1; /* Both buttons will share space equally, or one will take full width */
             transition: opacity 0.2s, background 0.2s;
             display: flex; align-items: center; justify-content: center; gap: 6px;
         }
@@ -576,7 +576,7 @@
             background: #f1f5f9; 
             color: var(--gray-text);
         }
-        .btn-save {
+        .btn-primary {
             background: var(--corp-blue); 
             color: #fff;
         }
@@ -811,10 +811,10 @@
                     <p>Цей бот збирає дані з двох незалежних джерел:</p>
                     <ul style="padding-left: 20px; margin-top: 5px;">
                         <li style="margin-bottom: 8px;">
-                            <strong>Головний корпус:</strong> У кімнаті для нарад біля пустих бутлів є крихітний комп'ютер (Orange Pi Zero), який працює від розетки (прохання <u>не чіпати</u> його!). Поки є світло, пристрій відправляє сигнал у Google Таблицю.
+                            <strong>Головний корпус:</strong> У кімнаті для нарад біля пустих бутлів є крихітний комп'ютер (Orange Pi Zero), який працює від розетки. Поки є світло, він відправляє сигнал у Google Таблицю.
                         </li>
                         <li>
-                            <strong>Хімічний факультет:</strong> Простий онлайн-сервіс перевіряє сайту <b><i>chem.knu.ua</i></b> раз на 15 хвилин і теж пише ці дані в свою Google Таблицю. Якщо сайт працює - світло у серверній є. Якщо ні - вочевидь, немає.
+                            <strong>Хімічний факультет:</strong> Простий онлайн-сервіс перевіряє сайту <b><i>chem.knu.ua</i></b> раз на 15 хвилин і теж пише ці дані в свою Google Таблицю. Якщо сайт працює - певно світло є.
                         </li>
                     </ul>
                                         <p>Аналітика поєднує ці дані, а також на основні них може припускати, чи це мережеве живлення, чи генератор.</p>
@@ -831,6 +831,14 @@
                     </div>
                 </div>
 
+                <!-- CONTENT FOR OPI IMAGE -->
+                <div id="modal-body-opi" class="modal-text" style="display:none;">
+                    <div class="qr-container">
+                        <img src="https://i.ytimg.com/vi/JzplWhwjbQI/hq720.jpg" alt="Orange Pi" class="qr-img" style="max-width: 100%; width:auto; border:none;">
+                        <p style="text-align: center; margin-top: 5px; font-weight: 600;">Сервер Головного корпусу</p>
+                    </div>
+                </div>
+
                 <!-- CONTENT FOR HISTORY -->
                 <div id="modal-body-history" class="modal-text" style="display:none;">
                     <!-- Injected via JS -->
@@ -840,8 +848,11 @@
             
             <div class="modal-footer">
                 <button class="modal-btn btn-close" onclick="closeModal()">Закрити</button>
-                <button id="btn-save-hist" class="modal-btn btn-save" onclick="saveHistoryAsPng()" style="display:none;">
+                <button id="btn-save-hist" class="modal-btn btn-primary" onclick="saveHistoryAsPng()" style="display:none;">
                     <i data-lucide="download" width="16" height="16"></i> Зберегти
+                </button>
+                <button id="btn-show-opi" class="modal-btn btn-primary" onclick="toggleModal('opi')" style="display:none;">
+                    <i data-lucide="image" width="16" height="16"></i> Фото
                 </button>
             </div>
             
@@ -867,20 +878,34 @@
         /* --- MODAL LOGIC --- */
         const modalContainer = document.getElementById('modal-container');
         const modalTitle = document.getElementById('modal-title-text');
+        
         const bodyInfo = document.getElementById('modal-body-info');
         const bodyQr = document.getElementById('modal-body-qr');
+        const bodyOpi = document.getElementById('modal-body-opi');
         const bodyHistory = document.getElementById('modal-body-history');
+        
         const btnSaveHist = document.getElementById('btn-save-hist');
+        const btnShowOpi = document.getElementById('btn-show-opi');
 
         function toggleModal(type, extraData) {
+            // Reset all displays
             bodyInfo.style.display = 'none';
             bodyQr.style.display = 'none';
+            bodyOpi.style.display = 'none';
             bodyHistory.style.display = 'none';
-            btnSaveHist.style.display = 'none'; // Hide by default
+            
+            // Reset buttons
+            btnSaveHist.style.display = 'none';
+            btnShowOpi.style.display = 'none';
             
             if (type === 'info') {
                 modalTitle.innerText = "Коротка довідка";
                 bodyInfo.style.display = 'block';
+                btnShowOpi.style.display = 'flex'; // Show "Photo" button
+            } else if (type === 'opi') {
+                modalTitle.innerText = "Orange Pi Zero";
+                bodyOpi.style.display = 'block';
+                // Only Close button shown by default
             } else if (type === 'qr') {
                 modalTitle.innerText = "QR Код";
                 bodyQr.style.display = 'block';
@@ -890,7 +915,7 @@
                 modalTitle.innerText = extraData.title;
                 bodyHistory.style.display = 'block';
                 bodyHistory.innerHTML = extraData.content;
-                btnSaveHist.style.display = 'flex'; // Show Save button only for history
+                btnSaveHist.style.display = 'flex'; // Show Save button
                 lucide.createIcons();
             }
             
