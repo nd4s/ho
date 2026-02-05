@@ -42,15 +42,13 @@
             margin: 0;
             padding: 0;
             width: 100vw;
-            height: 100dvh; /* Force exact viewport height */
-            overflow: hidden; /* ABSOLUTELY NO SCROLLBARS */
+            height: 100dvh; 
+            overflow: hidden; 
             background-color: var(--bg-body);
             font-family: 'Montserrat', sans-serif;
         }
 
-        /* 
-           MASTER GRID 
-        */
+        /* MASTER GRID */
         .dashboard-grid {
             display: grid;
             width: 100%;
@@ -145,7 +143,6 @@
         .ana-off .analytics-text-val { color: var(--corp-red); }
         .ana-off .ana-icon-svg { color: var(--corp-red); }
 
-
         /* INFO BUTTON */
         .info-btn {
             background: #ffffff;
@@ -162,7 +159,6 @@
             margin-left: 10px;
         }
         .info-btn:hover { border-color: var(--corp-blue); transform: scale(1.05); }
-
 
         /* --- 2. CARDS --- */
         .location-card {
@@ -303,20 +299,34 @@
             font-variant-numeric: tabular-nums;
         }
 
-        /* NEW CARD ACTION ROW */
+        /* --- ACTION ROW IN CARDS --- */
         .card-actions-row {
             display: flex;
             width: 100%;
             max-width: clamp(220px, 50%, 350px);
             justify-content: space-between;
-            align-items: center;
+            align-items: flex-end; /* Align bottom */
             gap: 10px;
             margin-top: 2px;
         }
 
+        .sources-wrapper {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+
+        .sources-label {
+            font-size: 8px;
+            text-transform: uppercase;
+            font-weight: 800;
+            color: var(--gray-text);
+            margin-left: 2px;
+        }
+
         .links-group {
             display: flex;
-            gap: 8px;
+            gap: 6px;
         }
 
         .icon-link-btn {
@@ -388,7 +398,6 @@
             transition: all 0.2s;
             width: 100%;
         }
-
         .action-btn:hover { background: #f1f5f9; color: var(--corp-blue); }
         .action-btn:active { transform: scale(0.95); }
 
@@ -416,9 +425,7 @@
         .pulse { animation: pulse-anim 2s infinite; }
         @keyframes pulse-anim { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
 
-        /* 
-           MODAL STYLES
-        */
+        /* MODAL STYLES */
         .modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.6);
@@ -442,10 +449,7 @@
             overflow: hidden; 
             position: relative;
         }
-
-        @media (min-width: 768px) {
-            .modal-box { max-width: 700px; }
-        }
+        @media (min-width: 768px) { .modal-box { max-width: 700px; } }
 
         .modal-header {
             padding: 25px 30px 10px 30px;
@@ -483,7 +487,6 @@
             scrollbar-width: thin;
             scrollbar-color: #cbd5e1 transparent;
         }
-
         .modal-content-scroll::-webkit-scrollbar { width: 8px; }
         .modal-content-scroll::-webkit-scrollbar-track { background: transparent; margin: 10px 0; }
         .modal-content-scroll::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 10px; border: 2px solid #fff; }
@@ -515,7 +518,6 @@
             padding: 0 30px 30px 30px;
             flex-shrink: 0;
         }
-
         .modal-close-btn {
             background: var(--corp-blue); color: #fff; border: none; padding: 14px 0;
             font-size: 16px; font-weight: 700; border-radius: 14px; cursor: pointer; width: 100%;
@@ -613,10 +615,13 @@
 
                 <!-- Modified Action Row -->
                 <div class="card-actions-row">
-                    <div class="links-group">
-                        <a href="https://docs.google.com/spreadsheets/d/1OtGMcLwI1qeHg6k-EWCr2D9EG_IfR8LpA_J2PWTTPXU/edit" target="_blank" class="icon-link-btn" title="Таблиця">
-                            <i data-lucide="table" width="18" height="18"></i>
-                        </a>
+                    <div class="sources-wrapper">
+                        <span class="sources-label">Джерела</span>
+                        <div class="links-group">
+                            <a href="https://docs.google.com/spreadsheets/d/1OtGMcLwI1qeHg6k-EWCr2D9EG_IfR8LpA_J2PWTTPXU/edit" target="_blank" class="icon-link-btn" title="Таблиця">
+                                <i data-lucide="table" width="18" height="18"></i>
+                            </a>
+                        </div>
                     </div>
                     <button class="history-btn" onclick="openHistory('main')">
                         <i data-lucide="history" width="16" height="16"></i> Попередні дані
@@ -659,13 +664,16 @@
 
                 <!-- Modified Action Row -->
                 <div class="card-actions-row">
-                    <div class="links-group">
-                        <a href="https://docs.google.com/spreadsheets/d/1unSgxK5BXlGoYZsJSBJpESTVIZXJc09acC8GxjGqDIQ/edit?usp=sharing" target="_blank" class="icon-link-btn" title="Таблиця">
-                            <i data-lucide="table" width="18" height="18"></i>
-                        </a>
-                        <a href="https://chem.knu.ua" target="_blank" class="icon-link-btn" title="Сайт">
-                            <i data-lucide="globe" width="18" height="18"></i>
-                        </a>
+                    <div class="sources-wrapper">
+                        <span class="sources-label">Джерела</span>
+                        <div class="links-group">
+                            <a href="https://docs.google.com/spreadsheets/d/1unSgxK5BXlGoYZsJSBJpESTVIZXJc09acC8GxjGqDIQ/edit?usp=sharing" target="_blank" class="icon-link-btn" title="Таблиця">
+                                <i data-lucide="table" width="18" height="18"></i>
+                            </a>
+                            <a href="https://chem.knu.ua" target="_blank" class="icon-link-btn" title="Сайт">
+                                <i data-lucide="globe" width="18" height="18"></i>
+                            </a>
+                        </div>
                     </div>
                     <button class="history-btn" onclick="openHistory('chem')">
                         <i data-lucide="history" width="16" height="16"></i> Попередні дані
@@ -719,9 +727,7 @@
                     <p>💡 <strong>Міське світло:</strong> Працюють обидва корпуси. Є напруга в міській мережі.</p>
                     <p>⚡ <strong>Генератор:</strong> Світло є <b><i>лише</i></b> в Головному корпусі (від генератора).</p>
                     <p>🔴 <strong>Світла немає:</strong> Міського світла нема, а генератор вимкнений.</p>
-                    
                     <hr style="border:0; border-top:1px solid #eee; margin: 15px 0;">
-                    
                     <h4 style="margin: 0 0 10px 0; color:var(--corp-blue);">Як загалом працює бот:</h4>
                     <p>Цей бот збирає дані з двох незалежних джерел:</p>
                     <ul style="padding-left: 20px; margin-top: 5px;">
@@ -814,22 +820,19 @@
                 alert("Дані ще завантажуються...");
                 return;
             }
-
             const title = type === 'main' ? 'Історія: Головний' : 'Історія: Хімфак';
             const htmlContent = generateHistoryHtml(state.rows, CONFIG[type].timeoutMins, type);
-            
             toggleModal('history', { title: title, content: htmlContent });
         }
 
-        /* --- HISTORY GENERATOR --- */
+        /* --- HISTORY GENERATOR WITH GAP FILLING --- */
         function generateHistoryHtml(rows, timeoutMins, type) {
-            // Simple session grouper
-            // 1. Sort rows (newest first) - already done in processing
-            // 2. Iterate and group based on timeout or status change
-            
-            const sessions = [];
+            // Rows are sorted Newest -> Oldest
             if (rows.length === 0) return '<p>Немає даних</p>';
 
+            const sessions = [];
+            
+            // Current accumulation session
             let currentSession = {
                 start: rows[0].date,
                 end: rows[0].date,
@@ -838,24 +841,47 @@
 
             for (let i = 0; i < rows.length - 1; i++) {
                 const curr = rows[i];
-                const prev = rows[i+1]; // Older row
+                const prev = rows[i+1]; // older data point
                 
-                // Logic differ by type
                 if (type === 'main') {
-                    // Implicit status. If gap < timeout, same session.
+                    // GAP DETECTION LOGIC
+                    // Main only records ON pings. 
+                    // Calculate gap between current ping and previous (older) ping.
                     const gapMins = (curr.date - prev.date) / 60000;
+                    
                     if (gapMins <= timeoutMins) {
-                        currentSession.start = prev.date; // Extend start time back
+                        // Continuous session, extend start backwards
+                        currentSession.start = prev.date;
                     } else {
-                        // Gap detected. Push current session.
+                        // Break detected. 
+                        // 1. Push the ONLINE session we just finished accumulating
                         sessions.push(currentSession);
-                        // The gap itself is an "OFFLINE" period? 
-                        // Simplified: Just show the ON sessions for Main, as we only have ON pings.
-                        // Or maybe show the implied gap. Let's just show KNOWN ON sessions.
+                        
+                        // 2. Create the OFFLINE session filling the gap
+                        // Offline starts at `prev.date` (last seen old) and ends at `curr.date` (first seen new)
+                        // Actually, let's be more precise: 
+                        // The light went OFF after prev.date and returned ON at currentSession.start (which is curr.date before accumulation logic, 
+                        // but since we iterate backwards in time (New->Old), currentSession.start is the "Oldest" known point of the NEW session so far.
+                        
+                        // Wait, logic correction:
+                        // currentSession is the NEWER session. We are extending its .start backwards.
+                        // When gap found:
+                        // currentSession (Online) starts at curr.date (which is the oldest point of the NEW cluster).
+                        // prev.date is the newest point of the OLD cluster.
+                        
+                        const offlineSession = {
+                            start: prev.date,
+                            end: curr.date, 
+                            status: 'OFFLINE'
+                        };
+                        sessions.push(offlineSession);
+
+                        // 3. Start a new Online session for the next loop
                         currentSession = { start: prev.date, end: prev.date, status: 'ONLINE' };
                     }
+
                 } else {
-                    // Chem: Explicit status check
+                    // CHEM LOGIC (Explicit Status)
                     if (curr.status === prev.status) {
                         currentSession.start = prev.date;
                     } else {
@@ -869,6 +895,7 @@
             // Group by Date String
             const grouped = {};
             sessions.forEach(s => {
+                // Use Start date for grouping key
                 const dayKey = new Intl.DateTimeFormat('uk-UA', { day: 'numeric', month: 'long' }).format(s.start);
                 if (!grouped[dayKey]) grouped[dayKey] = [];
                 grouped[dayKey].push(s);
@@ -886,9 +913,7 @@
                     const tStart = formatTimeOnly(s.start);
                     const tEnd = formatTimeOnly(s.end);
                     
-                    // Duration
                     const diffMs = s.end - s.start;
-                    // If single ping or very short, show <1m
                     let durStr = "";
                     if (diffMs < 60000) durStr = "< 1хв";
                     else {
@@ -1027,14 +1052,12 @@
                 if (rows.length === 0) throw new Error("No Data");
                 rows.sort((a, b) => b.date - a.date);
                 
-                // Store rows for History
                 globalState[conf.id].rows = rows;
 
                 const lastEntry = rows[0];
                 const now = new Date();
                 let sessionStartDate = lastEntry.date;
                 
-                // Determine start of current session for current status card
                 for (let i = 0; i < rows.length - 1; i++) {
                     const curr = rows[i];
                     const prev = rows[i+1];
