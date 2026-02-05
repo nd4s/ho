@@ -811,7 +811,7 @@
                     <p>Цей бот збирає дані з двох незалежних джерел:</p>
                     <ul style="padding-left: 20px; margin-top: 5px;">
                         <li style="margin-bottom: 8px;">
-                            <strong>Головний корпус:</strong> У кімнаті для нарад біля пустих бутлів є крихітний комп'ютер (Orange Pi Zero), який працює від розетки. Поки є світло, він відправляє сигнал у Google Таблицю.
+                            <strong>Головний корпус:</strong> У кімнаті для нарад біля пустих бутлів є крихітний комп'ютер (Orange Pi Zero 512MB), який працює від розетки. Поки є світло, він відправляє сигнал у Google Таблицю.
                         </li>
                         <li>
                             <strong>Хімічний факультет:</strong> Простий онлайн-сервіс перевіряє сайту <b><i>chem.knu.ua</i></b> раз на 15 хвилин і теж пише ці дані в свою Google Таблицю. Якщо сайт працює - певно світло є.
@@ -903,7 +903,7 @@
                 bodyInfo.style.display = 'block';
                 btnShowOpi.style.display = 'flex'; // Show "Photo" button
             } else if (type === 'opi') {
-                modalTitle.innerText = "Orange Pi Zero";
+                modalTitle.innerText = "Orange Pi Zero 512MB";
                 bodyOpi.style.display = 'block';
                 // Only Close button shown by default
             } else if (type === 'qr') {
