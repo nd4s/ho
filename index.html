@@ -552,7 +552,7 @@
         .history-item.h-off { background: var(--corp-red-bg); border-color: var(--corp-red-border); }
         
         .h-time { font-weight: 700; font-size: 15px; color: var(--corp-black); }
-        .h-status { font-weight: 800; font-size: 12px; text-transform: uppercase; margin-left: auto; margin-right: 10px; }
+        .h-status { font-weight: 800; font-size: 12px; text-transform: uppercase; margin-left: auto; margin-right: 10px; display: flex; align-items: center; gap: 6px; }
         .h-dur { font-size: 11px; font-weight: 600; opacity: 0.7; }
         
         .h-on .h-status { color: var(--corp-green); }
@@ -802,6 +802,7 @@
                 modalTitle.innerText = extraData.title;
                 bodyHistory.style.display = 'block';
                 bodyHistory.innerHTML = extraData.content;
+                lucide.createIcons();
             }
             
             modalContainer.style.display = 'flex';
@@ -836,7 +837,8 @@
             let currentSession = {
                 start: rows[0].date,
                 end: rows[0].date,
-                status: (type === 'chem' ? rows[0].status : 'ONLINE')
+                status: (type === 'chem' ? rows[0].status : 'ONLINE'),
+                isGen: false
             };
 
             for (let i = 0; i < rows.length - 1; i++) {
@@ -845,8 +847,6 @@
                 
                 if (type === 'main') {
                     // GAP DETECTION LOGIC
-                    // Main only records ON pings. 
-                    // Calculate gap between current ping and previous (older) ping.
                     const gapMins = (curr.date - prev.date) / 60000;
                     
                     if (gapMins <= timeoutMins) {
@@ -854,48 +854,56 @@
                         currentSession.start = prev.date;
                     } else {
                         // Break detected. 
-                        // 1. Push the ONLINE session we just finished accumulating
+                        
+                        // Check Generator status for the session we just finished accumulating
+                        if (currentSession.status === 'ONLINE' && globalState.chem.rows.length > 0) {
+                             // Find Chem status near the start of this Main session
+                             const checkTime = currentSession.start.getTime();
+                             // Chem rows are Descending. Find first row that is <= checkTime
+                             const cRow = globalState.chem.rows.find(r => r.date.getTime() <= checkTime);
+                             if (cRow && (cRow.status === 'OFFLINE' || cRow.status === '0')) {
+                                 currentSession.isGen = true;
+                             }
+                        }
+                        
                         sessions.push(currentSession);
-                        
-                        // 2. Create the OFFLINE session filling the gap
-                        // Offline starts at `prev.date` (last seen old) and ends at `curr.date` (first seen new)
-                        // Actually, let's be more precise: 
-                        // The light went OFF after prev.date and returned ON at currentSession.start (which is curr.date before accumulation logic, 
-                        // but since we iterate backwards in time (New->Old), currentSession.start is the "Oldest" known point of the NEW session so far.
-                        
-                        // Wait, logic correction:
-                        // currentSession is the NEWER session. We are extending its .start backwards.
-                        // When gap found:
-                        // currentSession (Online) starts at curr.date (which is the oldest point of the NEW cluster).
-                        // prev.date is the newest point of the OLD cluster.
                         
                         const offlineSession = {
                             start: prev.date,
                             end: curr.date, 
-                            status: 'OFFLINE'
+                            status: 'OFFLINE',
+                            isGen: false
                         };
                         sessions.push(offlineSession);
 
-                        // 3. Start a new Online session for the next loop
-                        currentSession = { start: prev.date, end: prev.date, status: 'ONLINE' };
+                        // Start a new Online session
+                        currentSession = { start: prev.date, end: prev.date, status: 'ONLINE', isGen: false };
                     }
 
                 } else {
-                    // CHEM LOGIC (Explicit Status)
+                    // CHEM LOGIC
                     if (curr.status === prev.status) {
                         currentSession.start = prev.date;
                     } else {
                         sessions.push(currentSession);
-                        currentSession = { start: prev.date, end: prev.date, status: prev.status };
+                        currentSession = { start: prev.date, end: prev.date, status: prev.status, isGen: false };
                     }
                 }
+            }
+            
+            // Check gen status for the very last session processed
+            if (type === 'main' && currentSession.status === 'ONLINE' && globalState.chem.rows.length > 0) {
+                 const checkTime = currentSession.start.getTime();
+                 const cRow = globalState.chem.rows.find(r => r.date.getTime() <= checkTime);
+                 if (cRow && (cRow.status === 'OFFLINE' || cRow.status === '0')) {
+                     currentSession.isGen = true;
+                 }
             }
             sessions.push(currentSession);
 
             // Group by Date String
             const grouped = {};
             sessions.forEach(s => {
-                // Use Start date for grouping key
                 const dayKey = new Intl.DateTimeFormat('uk-UA', { day: 'numeric', month: 'long' }).format(s.start);
                 if (!grouped[dayKey]) grouped[dayKey] = [];
                 grouped[dayKey].push(s);
@@ -923,10 +931,16 @@
                         else durStr = `${m}хв`;
                     }
 
+                    // Generator Icon Logic
+                    let genIcon = '';
+                    if (s.isGen) {
+                        genIcon = `<i data-lucide="zap" style="width:14px; height:14px; fill:var(--corp-yellow); color:var(--corp-yellow);" title="Генератор"></i>`;
+                    }
+
                     html += `
                     <div class="history-item ${className}">
                         <span class="h-time">${tStart} - ${tEnd}</span>
-                        <span class="h-status">${label}</span>
+                        <span class="h-status">${label} ${genIcon}</span>
                         <span class="h-dur">${durStr}</span>
                     </div>`;
                 });
