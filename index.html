@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Моніторинг Електроенергії</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <!-- Lucide Icons (SVGs) -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <style>
+        :root {
+            --corp-red: #dc2626;
+            --corp-green: #16a34a;
+            --corp-yellow: #ca8a04;
+            --corp-black: #171717;
+            --corp-blue: #1e3a8a;
+            --bg-white: #ffffff;
+            --card-bg: #f8fafc;
+            --gray-text: #64748b;
+        }
+
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            outline: none;
+        }
+
+        body {
+            background-color: var(--bg-white);
+            font-family: 'Montserrat', sans-serif;
+            margin: 0;
+            padding: 0;
+            width: 100vw;
+            height: 100vh;
+            height: 100dvh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* 1. BRAND & SYNC BAR */
+        .header-group {
+            flex-shrink: 0;
+            width: 100%;
+        }
+        
+        .brand-line {
+            width: 100%;
+            height: 6px;
+            background-color: var(--corp-blue);
+        }
+
+        /* The progress bar for the next 5s check */
+        .sync-bar-bg {
+            width: 100%;
+            height: 4px;
+            background: #e2e8f0;
+        }
+        .sync-bar-fill {
+            height: 100%;
+            background: #3b82f6;
+            width: 100%;
+            transform-origin: left;
+            transition: transform 0.1s linear;
+        }
+
+        /* 2. MAIN CONTAINER */
+        .container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 1.5vh 4vw;
+            gap: 1.5vh;
+        }
+
+        /* 3. ANALYTICS SECTION */
+        .analytics-box {
+            flex-shrink: 0;
+            background: #f1f5f9;
+            border-radius: 16px;
+            padding: 1.5vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid #e2e8f0;
+            transition: all 0.3s ease;
+            min-height: 15vh;
+        }
+
+        .analytics-title {
+            font-size: 2.5vmin;
+            font-weight: 600;
+            text-transform: uppercase;
+            color: var(--gray-text);
+            margin-bottom: 1vh;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .analytics-status {
+            font-size: 5vmin;
+            font-weight: 900;
+            line-height: 1.1;
+            color: var(--corp-black);
+            text-transform: uppercase;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* Analytics States */
+        .ana-city { background: #dcfce7; border-color: #86efac; }
+        .ana-city .analytics-status { color: var(--corp-green); }
+        
+        .ana-gen { background: #fef9c3; border-color: #fde047; }
+        .ana-gen .analytics-status { color: var(--corp-yellow); }
+        
+        .ana-off { background: #fee2e2; border-color: #fca5a5; }
+        .ana-off .analytics-status { color: var(--corp-red); }
+
+        /* 4. CARDS WRAPPER */
+        .cards-wrapper {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5vh;
+            justify-content: center;
+        }
+
+        /* 5. LOCATION CARD */
+        .location-card {
+            flex: 1;
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 2vh 4vw;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: space-between;
+            position: relative;
+            border-left: 8px solid #cbd5e1;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            transition: transform 0.2s;
+        }
+
+        .location-card.status-on {
+            border-left-color: var(--corp-green);
+            background: #f0fdf4;
+        }
+
+        .location-card.status-off {
+            border-left-color: var(--corp-red);
+            background: #fef2f2;
+        }
+
+        /* Card Content */
+        .card-info {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            width: 75%;
+            height: 100%;
+        }
+
+        .loc-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 0.5vh;
+        }
+
+        .loc-icon {
+            color: var(--corp-black);
+            width: 4vmin;
+            height: 4vmin;
+            opacity: 0.7;
+        }
+
+        .loc-name {
+            font-size: 3.8vmin;
+            font-weight: 800;
+            color: var(--corp-black);
+            text-transform: uppercase;
+            opacity: 0.8;
+        }
+
+        .loc-status {
+            font-size: 7vmin;
+            font-weight: 900;
+            line-height: 1;
+            margin-bottom: 1.5vh;
+        }
+        .status-on .loc-status { color: var(--corp-green); }
+        .status-off .loc-status { color: var(--corp-red); }
+
+        /* Data Rows */
+        .info-row {
+            display: flex;
+            align-items: baseline;
+            gap: 6px;
+            margin-bottom: 0.5vh;
+        }
+        .info-label {
+            font-size: 2.8vmin;
+            font-weight: 600;
+            color: var(--gray-text);
+        }
+        .info-value {
+            font-size: 4vmin;
+            font-weight: 800;
+            color: var(--corp-blue);
+        }
+
+        /* Footer / Meta */
+        .meta-group {
+            margin-top: auto;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            padding-top: 1vh;
+            border-top: 1px solid rgba(0,0,0,0.05);
+        }
+
+        .next-check {
+            font-size: 2.2vmin;
+            color: var(--gray-text);
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .source-link {
+            font-size: 2.2vmin;
+            font-weight: 700;
+            color: var(--corp-blue);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        /* Card Big Icon (Right) */
+        .card-visual {
+            width: 25%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #cbd5e1; /* Default grey */
+        }
+        .status-on .card-visual { color: var(--corp-green); filter: drop-shadow(0 0 8px rgba(22, 163, 74, 0.3)); }
+        .status-off .card-visual { color: var(--corp-red); }
+
+        /* Animations */
+        .pulse { animation: pulse-anim 2s infinite; }
+        @keyframes pulse-anim {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.1); opacity: 0.8; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        /* Loader */
+        .loader-overlay {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(255,255,255,0.9);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10;
+            border-radius: 18px;
+            backdrop-filter: blur(2px);
+        }
+        .spinner {
+            animation: spin 1s linear infinite;
+            color: var(--corp-blue);
+            width: 8vmin;
+            height: 8vmin;
+        }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+
+        /* Landscape Mobile Fix */
+        @media (orientation: landscape) and (max-height: 600px) {
+            .cards-wrapper { flex-direction: row; }
+            .location-card { height: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header-group">
+        <div class="brand-line"></div>
+        <div class="sync-bar-bg">
+            <div id="sync-fill" class="sync-bar-fill"></div>
+        </div>
+    </div>
+
+    <div class="container">
+        
+        <!-- 1. ANALYTICS HEADER -->
+        <div id="analytics-box" class="analytics-box">
+            <div class="analytics-title">
+                <i data-lucide="activity"></i>
+                Загальний стан
+            </div>
+            <div id="analytics-text" class="analytics-status">
+                <i data-lucide="loader-2" class="spinner"></i>
+            </div>
+        </div>
+
+        <!-- 2. DATA CARDS -->
+        <div class="cards-wrapper">
+            
+            <!-- CARD 1: MAIN CORPS -->
+            <div id="card-main" class="location-card">
+                <div id="loader-main" class="loader-overlay">
+                    <i data-lucide="loader" class="spinner"></i>
+                </div>
+                
+                <div class="card-info">
+                    <div class="loc-header">
+                        <!-- Icon: Landmark (University) -->
+                        <i data-lucide="landmark" class="loc-icon"></i>
+                        <span class="loc-name">Головний</span>
+                    </div>
+                    
+                    <div class="loc-status" id="status-main">...</div>
+                    
+                    <div class="info-row">
+                        <span class="info-label">Початок:</span>
+                        <span class="info-value" id="val-start-main">--:--</span>
+                    </div>
+                    
+                    <div class="info-row">
+                        <span class="info-label">Тривалість:</span>
+                        <span class="info-value" id="val-dur-main">...</span>
+                    </div>
+
+                    <div class="meta-group">
+                        <span class="next-check">
+                            <i data-lucide="timer" style="width:12px"></i>
+                            Оновлення: <span id="timer-main">5s</span>
+                        </span>
+                        <a href="https://docs.google.com/spreadsheets/d/1OtGMcLwI1qeHg6k-EWCr2D9EG_IfR8LpA_J2PWTTPXU/edit" target="_blank" class="source-link">
+                            Таблиця <i data-lucide="external-link" style="width:12px"></i>
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="card-visual">
+                    <!-- Icon: Will be Zap or Moon -->
+                    <div id="icon-main" style="width: 14vmin; height: 14vmin;"></div>
+                </div>
+            </div>
+
+            <!-- CARD 2: CHEM FACULTY -->
+            <div id="card-chem" class="location-card">
+                <div id="loader-chem" class="loader-overlay">
+                    <i data-lucide="loader" class="spinner"></i>
+                </div>
+                
+                <div class="card-info">
+                    <div class="loc-header">
+                        <!-- Icon: Flask (Chemistry) -->
+                        <i data-lucide="flask-conical" class="loc-icon"></i>
+                        <span class="loc-name">Хім. Фак.</span>
+                    </div>
+
+                    <div class="loc-status" id="status-chem">...</div>
+                    
+                    <div class="info-row">
+                        <span class="info-label">Початок:</span>
+                        <span class="info-value" id="val-start-chem">--:--</span>
+                    </div>
+                    
+                    <div class="info-row">
+                        <span class="info-label">Тривалість:</span>
+                        <span class="info-value" id="val-dur-chem">...</span>
+                    </div>
+
+                    <div class="meta-group">
+                        <span class="next-check">
+                            <i data-lucide="timer" style="width:12px"></i>
+                            Оновлення: <span id="timer-chem">5s</span>
+                        </span>
+                        <a href="https://chem.knu.ua" target="_blank" class="source-link">
+                            Сайт <i data-lucide="external-link" style="width:12px"></i>
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="card-visual">
+                    <div id="icon-chem" style="width: 14vmin; height: 14vmin;"></div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        // Initialize Icons immediately for static elements
+        lucide.createIcons();
+
+        const CONFIG = {
+            main: {
+                id: 'main',
+                sheetId: '1OtGMcLwI1qeHg6k-EWCr2D9EG_IfR8LpA_J2PWTTPXU', 
+                timeoutMins: 35
+            },
+            chem: {
+                id: 'chem',
+                sheetId: '1unSgxK5BXlGoYZsJSBJpESTVIZXJc09acC8GxjGqDIQ', 
+                timeoutMins: 20 
+            }
+        };
+
+        const REFRESH_RATE_MS = 5000;
+        let nextFetchTime = Date.now() + REFRESH_RATE_MS;
+
+        const globalState = {
+            main: { isOnline: null, initialized: false },
+            chem: { isOnline: null, initialized: false }
+        };
+
+        // --- ICON HELPERS ---
+        // Using raw SVG strings prevents flickering and DOM re-scans
+        const ICONS = {
+            zap: `<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>`,
+            moon: `<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"></path></svg>`,
+            alert: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path><line x1="12" x2="12" y1="9" y2="13"></line><line x1="12" x2="12.01" y1="17" y2="17"></line></svg>`,
+            check: `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>`,
+            powerOff: `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M18.36 6.64a9 9 0 1 1-12.73 0"></path><line x1="12" x2="12" y1="2" y2="12"></line></svg>`
+        };
+
+        function parseGoogleDate(rawValue) {
+            if (typeof rawValue === 'string' && rawValue.indexOf('Date') !== -1) {
+                const parts = rawValue.match(/\d+/g).map(Number);
+                return new Date(parts[0], parts[1], parts[2], parts[3], parts[4], parts[5]);
+            }
+            return new Date(rawValue);
+        }
+
+        // --- UI UPDATERS ---
+
+        function updateCountdown() {
+            const now = Date.now();
+            let left = nextFetchTime - now;
+            if (left < 0) left = 0;
+
+            const sec = Math.ceil(left / 1000);
+            const pct = 100 - ((left / REFRESH_RATE_MS) * 100);
+
+            // Update Header Bar
+            document.getElementById('sync-fill').style.transform = `scaleX(${pct/100})`;
+            
+            // Update Text in Cards
+            const text = `${sec}с`;
+            document.getElementById('timer-main').innerText = text;
+            document.getElementById('timer-chem').innerText = text;
+
+            requestAnimationFrame(updateCountdown);
+        }
+
+        function updateAnalytics() {
+            if (!globalState.main.initialized || !globalState.chem.initialized) return;
+
+            const box = document.getElementById('analytics-box');
+            const text = document.getElementById('analytics-text');
+            
+            const m = globalState.main.isOnline;
+            const c = globalState.chem.isOnline;
+
+            if (m && c) {
+                box.className = 'analytics-box ana-city';
+                text.innerHTML = `${ICONS.check} МІСЬКЕ СВІТЛО Є`;
+            } else if (m && !c) {
+                box.className = 'analytics-box ana-gen';
+                text.innerHTML = `${ICONS.alert} <div style="display:flex;flex-direction:column;align-items:center"><span>ГЕНЕРАТОР</span><span style="font-size:0.4em;opacity:0.8">(Тільки Головний)</span></div>`;
+            } else if (!m && !c) {
+                box.className = 'analytics-box ana-off';
+                text.innerHTML = `${ICONS.powerOff} СВІТЛА НЕМАЄ`;
+            } else {
+                box.className = 'analytics-box ana-gen';
+                text.innerHTML = `${ICONS.alert} ЧАСТКОВЕ СВІТЛО`;
+            }
+        }
+
+        function processData(json, conf) {
+            try {
+                if (!json.table || !json.table.rows || json.table.rows.length === 0) throw new Error("Empty");
+
+                let dates = json.table.rows.map(row => {
+                    if (row.c && row.c[0] && row.c[0].v) return parseGoogleDate(row.c[0].v);
+                    return null;
+                }).filter(d => d !== null && !isNaN(d.getTime()));
+
+                if (dates.length === 0) throw new Error("No Dates");
+
+                dates.sort((a, b) => b - a);
+                const lastDate = dates[0];
+                const now = new Date();
+
+                let sessionStartDate = lastDate;
+                for (let i = 0; i < dates.length - 1; i++) {
+                    const curr = dates[i];
+                    const prev = dates[i+1];
+                    const diffMins = (curr - prev) / 60000;
+                    if (diffMins > conf.timeoutMins) {
+                        sessionStartDate = curr; 
+                        break; 
+                    }
+                    sessionStartDate = prev; 
+                }
+
+                updateCardUI(conf, lastDate, sessionStartDate, now);
+
+            } catch (error) {
+                console.error(conf.id, error);
+                document.getElementById(`status-${conf.id}`).innerText = "ПОМИЛКА";
+            }
+        }
+
+        function updateCardUI(conf, lastDate, startDate, now) {
+            const id = conf.id;
+            const diffMs = now - lastDate;
+            const diffMins = Math.floor(diffMs / 60000);
+            const isOnline = diffMins <= conf.timeoutMins;
+
+            globalState[id].isOnline = isOnline;
+            globalState[id].initialized = true;
+            updateAnalytics();
+
+            const card = document.getElementById(`card-${id}`);
+            const status = document.getElementById(`status-${id}`);
+            const visual = document.getElementById(`icon-${id}`);
+            const loader = document.getElementById(`loader-${id}`);
+            
+            const valStart = document.getElementById(`val-start-${id}`);
+            const valDur = document.getElementById(`val-dur-${id}`);
+            const timeStr = new Intl.DateTimeFormat('uk-UA', { hour:'2-digit', minute:'2-digit' }).format;
+
+            if (isOnline) {
+                card.className = 'location-card status-on';
+                status.innerText = 'Є СВІТЛО';
+                visual.innerHTML = ICONS.zap;
+                visual.className = 'card-visual pulse'; // Add pulse class
+                
+                valStart.innerText = timeStr(startDate);
+                const durMs = now - startDate;
+                const h = Math.floor(durMs / 3600000);
+                const m = Math.floor((durMs % 3600000) / 60000);
+                valDur.innerText = `${h} год ${m} хв`;
+            } else {
+                card.className = 'location-card status-off';
+                status.innerText = 'НЕМАЄ';
+                visual.innerHTML = ICONS.moon;
+                visual.className = 'card-visual';
+
+                valStart.innerText = timeStr(lastDate) + " (зникло)";
+                if (diffMins < 60) valDur.innerText = `${diffMins} хв тому`;
+                else {
+                    const h = Math.floor(diffMins / 60);
+                    const m = diffMins % 60;
+                    valDur.innerText = `${h} год ${m} хв тому`;
+                }
+            }
+            loader.style.display = 'none';
+        }
+
+        window.cbMain = (json) => processData(json, CONFIG.main);
+        window.cbChem = (json) => processData(json, CONFIG.chem);
+
+        function fetchData() {
+            // Reset timer
+            nextFetchTime = Date.now() + REFRESH_RATE_MS;
+            
+            const oldS1 = document.getElementById('script-main');
+            const oldS2 = document.getElementById('script-chem');
+            if (oldS1) oldS1.remove();
+            if (oldS2) oldS2.remove();
+
+            const s1 = document.createElement('script');
+            s1.id = 'script-main';
+            s1.src = `https://docs.google.com/spreadsheets/d/${CONFIG.main.sheetId}/gviz/tq?tqx=responseHandler:cbMain&tq=select%20A%20order%20by%20A%20desc%20limit%20150&_=${Date.now()}`;
+            document.body.appendChild(s1);
+
+            const s2 = document.createElement('script');
+            s2.id = 'script-chem';
+            s2.src = `https://docs.google.com/spreadsheets/d/${CONFIG.chem.sheetId}/gviz/tq?tqx=responseHandler:cbChem&tq=select%20A%20order%20by%20A%20desc%20limit%20150&_=${Date.now()}`;
+            document.body.appendChild(s2);
+        }
+
+        // Start
+        fetchData();
+        setInterval(fetchData, REFRESH_RATE_MS);
+        requestAnimationFrame(updateCountdown);
+
+    </script>
+</body>
+</html>
