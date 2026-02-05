@@ -868,7 +868,7 @@
                 alert("Дані ще завантажуються...");
                 return;
             }
-            const title = type === 'main' ? 'Історія: Головний' : 'Історія: Хімфак';
+            const title = type === 'main' ? 'Історія: Головний' : 'Історія: Хімічний';
             const htmlContent = generateHistoryHtml(state.rows, CONFIG[type].timeoutMins, type);
             toggleModal('history', { title: title, content: htmlContent });
         }
