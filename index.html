@@ -211,7 +211,7 @@
             align-items: center;
             justify-content: space-evenly; 
             text-align: center;
-            padding: 2px 10px; 
+            padding: 0 10px; /* Reduced vertical padding */
             height: 100%;
             width: 100%;
             z-index: 1; 
@@ -224,14 +224,14 @@
             color: var(--corp-black);
             opacity: 0.7;
             margin-bottom: 0;
-            margin-top: 2vh; 
+            margin-top: 1vh; /* Reduced from 2vh */
         }
 
         .loc-status-text {
             font-size: clamp(18px, 3.5vh, 40px); 
             font-weight: 900;
             line-height: 1;
-            margin: 2px 0;
+            margin: 0; /* Reduced from 2px 0 */
         }
         .status-on .loc-status-text { color: var(--corp-green); }
         .status-off .loc-status-text { color: var(--corp-red); }
@@ -239,7 +239,8 @@
         /* Timer Box */
         .timer-container {
             background: rgba(255,255,255,0.6);
-            padding: clamp(4px, 0.8vh, 12px) clamp(8px, 1.5vw, 25px);
+            /* Reduced vertical padding to fit larger fonts */
+            padding: clamp(2px, 0.6vh, 10px) clamp(8px, 1.5vw, 25px);
             border-radius: 18px;
             display: flex;
             flex-direction: column;
@@ -272,9 +273,9 @@
             grid-template-columns: 1fr 1fr 1fr;
             width: 100%;
             gap: 5px;
-            margin-top: 4px;
+            margin-top: 2px; /* Tighter */
             border-top: 1px solid rgba(0,0,0,0.08);
-            padding-top: 4px;
+            padding-top: 2px; /* Tighter */
         }
         
         .detail-item {
@@ -284,17 +285,19 @@
             text-align: center;
         }
 
+        /* INCREASED FONT SIZE for readability */
         .detail-lbl {
-            font-size: clamp(6px, 0.9vh, 10px);
+            font-size: clamp(9px, 1.1vh, 13px);
             color: #64748b;
             font-weight: 700;
             text-transform: uppercase;
             white-space: nowrap;
         }
 
+        /* INCREASED FONT SIZE for readability */
         .detail-val {
-            font-size: clamp(9px, 1.2vh, 14px);
-            font-weight: 700;
+            font-size: clamp(12px, 1.6vh, 18px);
+            font-weight: 800;
             color: var(--corp-black);
             font-variant-numeric: tabular-nums;
         }
@@ -857,9 +860,7 @@
                         
                         // Check Generator status for the session we just finished accumulating
                         if (currentSession.status === 'ONLINE' && globalState.chem.rows.length > 0) {
-                             // Find Chem status near the start of this Main session
                              const checkTime = currentSession.start.getTime();
-                             // Chem rows are Descending. Find first row that is <= checkTime
                              const cRow = globalState.chem.rows.find(r => r.date.getTime() <= checkTime);
                              if (cRow && (cRow.status === 'OFFLINE' || cRow.status === '0')) {
                                  currentSession.isGen = true;
@@ -910,7 +911,9 @@
             });
 
             // HTML Build
-            let html = '';
+            // LEGEND ADDED HERE
+            let html = '<div style="font-size:11px; color:#64748b; margin-bottom:10px; text-align:center;">⚡ — живлення від генератора</div>';
+            
             Object.keys(grouped).forEach(dateStr => {
                 html += `<div class="history-date-header">${dateStr}</div>`;
                 grouped[dateStr].forEach(s => {
@@ -1138,7 +1141,8 @@
             const minutesToAdd = interval - (nextTime.getMinutes() % interval);
             nextTime.setMinutes(nextTime.getMinutes() + minutesToAdd);
             nextTime.setSeconds(0);
-            valNext.innerText = (id === 'chem' ? "" : "~") + formatTimeOnly(nextTime);
+            // ADDED TILDE FOR BOTH
+            valNext.innerText = "~" + formatTimeOnly(nextTime);
             
             visual.innerHTML = `<i data-lucide="${iconName}" class="side-icon status-icon ${isOnline ? 'pulse' : ''}"></i>`;
             lucide.createIcons();
