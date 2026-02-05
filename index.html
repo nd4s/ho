@@ -180,7 +180,7 @@
             display: flex;
             flex-direction: column;
             overflow: hidden;
-            position: relative;
+            position: relative; /* Essential for absolute positioning of icons */
             box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
             height: 100%; 
         }
@@ -188,25 +188,30 @@
         .location-card.status-on { background: var(--corp-green-bg); border-color: var(--corp-green-border); }
         .location-card.status-off { background: var(--corp-red-bg); border-color: var(--corp-red-border); }
 
-        .card-inner-grid {
-            display: grid;
-            grid-template-columns: 15% 1fr 15%;
-            width: 100%;
-            height: 100%;
-            align-items: center;
-        }
-
-        .icon-col {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100%;
+        /* ICON STYLES */
+        .side-icon {
+            /* INCREASED SIZE as requested */
+            width: clamp(45px, 7vh, 85px);
+            height: clamp(45px, 7vh, 85px);
+            transition: all 0.3s;
         }
         
-        .side-icon {
-            width: clamp(24px, 3.5vw, 55px);
-            height: clamp(24px, 3.5vw, 55px);
-            transition: all 0.3s;
+        /* Absolute Positioning for Corners */
+        .icon-top-left {
+            position: absolute;
+            top: clamp(10px, 2vh, 20px);
+            left: clamp(10px, 2vw, 20px);
+            z-index: 5;
+        }
+        
+        .icon-top-right {
+            position: absolute;
+            top: clamp(10px, 2vh, 20px);
+            right: clamp(10px, 2vw, 20px);
+            z-index: 5;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         
         .building-icon { opacity: 0.7; color: var(--corp-black); }
@@ -218,11 +223,12 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: space-evenly; 
+            justify-content: space-evenly; /* Kept exactly as original to preserve spacing */
             text-align: center;
-            padding: 2px 0; /* Reduced padding */
+            padding: 2px 0; 
             height: 100%;
             width: 100%;
+            z-index: 1; /* Below icons just in case */
         }
 
         .loc-name {
@@ -232,10 +238,11 @@
             color: var(--corp-black);
             opacity: 0.7;
             margin-bottom: 0;
+            /* Add small margin top so it doesn't hit the large icons on very small screens */
+            margin-top: 2vh; 
         }
 
         .loc-status-text {
-            /* REDUCED FONT SIZE for fitting more data */
             font-size: clamp(18px, 3.5vh, 40px); 
             font-weight: 900;
             line-height: 1;
@@ -524,47 +531,43 @@
         <div id="card-main" class="location-card">
             <div id="loader-main" class="loader-overlay"><i data-lucide="loader" class="spinner"></i></div>
             
-            <div class="card-inner-grid">
-                <!-- Left Icon -->
-                <div class="icon-col">
-                    <i data-lucide="landmark" class="side-icon building-icon"></i>
-                </div>
+            <!-- ABSOLUTE ICONS -->
+            <div class="icon-top-left">
+                <i data-lucide="landmark" class="side-icon building-icon"></i>
+            </div>
+            <div id="icon-main" class="icon-top-right">
+                <!-- Status icon via JS -->
+            </div>
 
-                <!-- Center Content -->
-                <div class="info-col">
-                    <span class="loc-name">Головний корпус</span>
-                    <span class="loc-status-text" id="status-main">...</span>
+            <!-- Center Content (Full size, distributed evenly) -->
+            <div class="info-col">
+                <span class="loc-name">Головний корпус</span>
+                <span class="loc-status-text" id="status-main">...</span>
+                
+                <div class="timer-container">
+                    <span class="data-label" id="label-dur-main">Тривалість</span>
+                    <span class="timer-main" id="val-dur-main">0с</span>
                     
-                    <div class="timer-container">
-                        <span class="data-label" id="label-dur-main">Тривалість</span>
-                        <span class="timer-main" id="val-dur-main">0с</span>
-                        
-                        <!-- New Detailed Grid -->
-                        <div class="timer-details-grid">
-                            <div class="detail-item">
-                                <span class="detail-lbl" id="label-start-main">З'явилось</span>
-                                <span class="detail-val" id="val-start-main">--:--</span>
-                            </div>
-                            <div class="detail-item">
-                                <span class="detail-lbl">Перевірено</span>
-                                <span class="detail-val" id="val-last-main">--:--</span>
-                            </div>
-                            <div class="detail-item">
-                                <span class="detail-lbl">Коли перевірка</span>
-                                <span class="detail-val" id="val-next-main">~--:--</span>
-                            </div>
+                    <!-- New Detailed Grid -->
+                    <div class="timer-details-grid">
+                        <div class="detail-item">
+                            <span class="detail-lbl" id="label-start-main">З'явилось</span>
+                            <span class="detail-val" id="val-start-main">--:--</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-lbl">Перевірено</span>
+                            <span class="detail-val" id="val-last-main">--:--</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-lbl">Коли перевірка</span>
+                            <span class="detail-val" id="val-next-main">~--:--</span>
                         </div>
                     </div>
-
-                    <a href="https://docs.google.com/spreadsheets/d/1OtGMcLwI1qeHg6k-EWCr2D9EG_IfR8LpA_J2PWTTPXU/edit" target="_blank" class="meta-link">
-                        <i data-lucide="table" width="12" height="12"></i> Перевірити таблицю власноруч
-                    </a>
                 </div>
 
-                <!-- Right Icon -->
-                <div class="icon-col">
-                    <div id="icon-main" class="icon-col"></div>
-                </div>
+                <a href="https://docs.google.com/spreadsheets/d/1OtGMcLwI1qeHg6k-EWCr2D9EG_IfR8LpA_J2PWTTPXU/edit" target="_blank" class="meta-link">
+                    <i data-lucide="table" width="12" height="12"></i> Перевірити таблицю власноруч
+                </a>
             </div>
         </div>
 
@@ -572,47 +575,43 @@
         <div id="card-chem" class="location-card">
             <div id="loader-chem" class="loader-overlay"><i data-lucide="loader" class="spinner"></i></div>
             
-            <div class="card-inner-grid">
-                <!-- Left Icon -->
-                <div class="icon-col">
-                    <i data-lucide="flask-conical" class="side-icon building-icon"></i>
-                </div>
+            <!-- ABSOLUTE ICONS -->
+            <div class="icon-top-left">
+                <i data-lucide="flask-conical" class="side-icon building-icon"></i>
+            </div>
+            <div id="icon-chem" class="icon-top-right">
+                <!-- Status icon via JS -->
+            </div>
 
-                <!-- Center Content -->
-                <div class="info-col">
-                    <span class="loc-name">Хімічний факультет</span>
-                    <span class="loc-status-text" id="status-chem">...</span>
+            <!-- Center Content (Full size, distributed evenly) -->
+            <div class="info-col">
+                <span class="loc-name">Хімічний факультет</span>
+                <span class="loc-status-text" id="status-chem">...</span>
+                
+                <div class="timer-container">
+                    <span class="data-label" id="label-dur-chem">Тривалість</span>
+                    <span class="timer-main" id="val-dur-chem">0с</span>
                     
-                    <div class="timer-container">
-                        <span class="data-label" id="label-dur-chem">Тривалість</span>
-                        <span class="timer-main" id="val-dur-chem">0с</span>
-                        
-                        <!-- New Detailed Grid -->
-                        <div class="timer-details-grid">
-                            <div class="detail-item">
-                                <span class="detail-lbl" id="label-start-chem">З'явилось</span>
-                                <span class="detail-val" id="val-start-chem">--:--</span>
-                            </div>
-                            <div class="detail-item">
-                                <span class="detail-lbl">Перевірено</span>
-                                <span class="detail-val" id="val-last-chem">--:--</span>
-                            </div>
-                            <div class="detail-item">
-                                <span class="detail-lbl">Коли перевірка</span>
-                                <span class="detail-val" id="val-next-chem">--:--</span>
-                            </div>
+                    <!-- New Detailed Grid -->
+                    <div class="timer-details-grid">
+                        <div class="detail-item">
+                            <span class="detail-lbl" id="label-start-chem">З'явилось</span>
+                            <span class="detail-val" id="val-start-chem">--:--</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-lbl">Перевірено</span>
+                            <span class="detail-val" id="val-last-chem">--:--</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-lbl">Коли перевірка</span>
+                            <span class="detail-val" id="val-next-chem">--:--</span>
                         </div>
                     </div>
-
-                    <a href="https://chem.knu.ua" target="_blank" class="meta-link">
-                        <i data-lucide="globe" width="12" height="12"></i> Перевірити сайт власноруч
-                    </a>
                 </div>
 
-                <!-- Right Icon -->
-                <div class="icon-col">
-                    <div id="icon-chem" class="icon-col"></div>
-                </div>
+                <a href="https://chem.knu.ua" target="_blank" class="meta-link">
+                    <i data-lucide="globe" width="12" height="12"></i> Перевірити сайт власноруч
+                </a>
             </div>
         </div>
 
@@ -762,7 +761,7 @@
                     // Reset via lucide
                     icon.setAttribute('data-lucide', 'copy');
                     icon.style.color = '';
-                    label.innerText = "Copy";
+                    label.innerText = "Скопіювати";
                     label.style.color = '';
                     lucide.createIcons();
                 }, 2000);
