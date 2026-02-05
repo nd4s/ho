@@ -1,0 +1,784 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Світлобот КНУТШ</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <!-- Lucide Icons (SVGs) -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <style>
+        :root {
+            --corp-red: #dc2626;
+            --corp-red-bg: #fef2f2;
+            --corp-red-border: #fca5a5;
+            
+            --corp-green: #16a34a;
+            --corp-green-bg: #f0fdf4;
+            --corp-green-border: #86efac;
+            
+            --corp-yellow: #ca8a04;
+            --corp-black: #171717;
+            --corp-blue: #1e3a8a;
+            --bg-body: #f1f5f9;
+            --card-bg: #ffffff;
+            --gray-text: #64748b;
+        }
+
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            outline: none;
+        }
+
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100vw;
+            height: 100dvh; /* Force exact viewport height */
+            overflow: hidden; /* ABSOLUTELY NO SCROLLBARS */
+            background-color: var(--bg-body);
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        /* 
+           MASTER GRID 
+           Optimized gap and padding for better fitting
+        */
+        .dashboard-grid {
+            display: grid;
+            width: 100%;
+            height: 100%;
+            padding: clamp(10px, 2vh, 25px); /* Responsive padding */
+            gap: clamp(10px, 2vh, 25px);     /* Responsive gap */
+            
+            /* Mobile: Top Auto, Bottom two split remaining space equally */
+            grid-template-columns: 1fr;
+            grid-template-rows: auto minmax(0, 1fr) minmax(0, 1fr);
+            
+            max-width: 1800px; /* Increased max-width for large desktops */
+            margin: 0 auto;
+        }
+
+        /* Desktop: Top bar, then two columns below */
+        @media (min-width: 768px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr 1fr;
+                /* Top row sized by content, Bottom row takes the rest */
+                grid-template-rows: auto minmax(0, 1fr); 
+            }
+        }
+
+        /* --- 1. ANALYTICS BOX (Top) --- */
+        .analytics-box {
+            grid-column: 1 / -1; 
+            background: #ffffff;
+            border-radius: 20px;
+            border: 2px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: clamp(10px, 1.5vh, 30px); /* Tighter padding on small screens */
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+            flex-shrink: 0; 
+            max-height: 15vh; /* Prevent header from eating too much space on mobile */
+        }
+
+        .analytics-left {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 4px;
+            width: 100%;
+        }
+
+        .analytics-title {
+            font-size: clamp(10px, 1.5vh, 14px); /* Smaller min font */
+            font-weight: 700;
+            text-transform: uppercase;
+            color: var(--gray-text);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .analytics-content-wrapper {
+            display: flex;
+            align-items: center;
+            gap: clamp(10px, 2vw, 20px);
+        }
+
+        /* CONTROL THE SVG SIZE STRICTLY */
+        .ana-icon-svg {
+            /* Wider range: smaller on phone, bigger on desktop */
+            width: clamp(35px, 6vh, 80px); 
+            height: clamp(35px, 6vh, 80px);
+            flex-shrink: 0; 
+        }
+
+        .analytics-text-val {
+            /* Adjusted for better scaling */
+            font-size: clamp(18px, 4vh, 42px);
+            font-weight: 900;
+            text-transform: uppercase;
+            line-height: 0.95;
+        }
+
+        .analytics-sub {
+            font-size: 0.6em;
+            opacity: 0.8;
+            font-weight: 600;
+            display: block;
+            margin-top: 2px;
+            line-height: 1.1;
+        }
+
+        /* Theme Classes */
+        .ana-city { background: var(--corp-green-bg); border-color: var(--corp-green-border); }
+        .ana-city .analytics-text-val { color: var(--corp-green); }
+        .ana-city .ana-icon-svg { color: var(--corp-green); }
+
+        .ana-gen { background: #fefce8; border-color: #fde047; }
+        .ana-gen .analytics-text-val { color: var(--corp-yellow); }
+        .ana-gen .ana-icon-svg { color: var(--corp-yellow); }
+
+        .ana-off { background: var(--corp-red-bg); border-color: var(--corp-red-border); }
+        .ana-off .analytics-text-val { color: var(--corp-red); }
+        .ana-off .ana-icon-svg { color: var(--corp-red); }
+
+
+        /* INFO BUTTON */
+        .info-btn {
+            background: #ffffff;
+            border: 2px solid #e2e8f0;
+            border-radius: 50%;
+            /* Responsive button size */
+            width: clamp(36px, 5vh, 48px);
+            height: clamp(36px, 5vh, 48px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--corp-blue);
+            cursor: pointer;
+            flex-shrink: 0;
+            margin-left: 10px;
+        }
+        .info-btn:hover { border-color: var(--corp-blue); transform: scale(1.05); }
+
+
+        /* --- 2. CARDS --- */
+        .location-card {
+            background: var(--card-bg);
+            border-radius: 24px;
+            border: 2px solid transparent;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            position: relative;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
+            height: 100%; 
+        }
+
+        .location-card.status-on { background: var(--corp-green-bg); border-color: var(--corp-green-border); }
+        .location-card.status-off { background: var(--corp-red-bg); border-color: var(--corp-red-border); }
+
+        /* The grid inside the card: Icon | Content | Icon */
+        .card-inner-grid {
+            display: grid;
+            /* Changed from fixed pixels to responsive percentages/fractions */
+            grid-template-columns: 15% 1fr 15%;
+            width: 100%;
+            height: 100%;
+            align-items: center;
+        }
+
+        /* Side Icons - STRICTLY SIZED */
+        .icon-col {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+        }
+        
+        .side-icon {
+            /* More dynamic sizing */
+            width: clamp(28px, 4vw, 60px);
+            height: clamp(28px, 4vw, 60px);
+            transition: all 0.3s;
+        }
+        
+        .building-icon { opacity: 0.7; color: var(--corp-black); }
+        .status-on .status-icon { color: var(--corp-green); filter: drop-shadow(0 0 15px rgba(22, 163, 74, 0.4)); }
+        .status-off .status-icon { color: var(--corp-red); opacity: 0.9; }
+
+        /* Center Info */
+        .info-col {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            /* Use space-evenly to spread content better on large screens */
+            justify-content: space-evenly; 
+            text-align: center;
+            padding: 5px 0;
+            height: 100%;
+            width: 100%;
+        }
+
+        .loc-name {
+            font-size: clamp(12px, 2vh, 24px);
+            font-weight: 800;
+            text-transform: uppercase;
+            color: var(--corp-black);
+            opacity: 0.7;
+            margin-bottom: 0; /* Let justify-content handle spacing */
+        }
+
+        .loc-status-text {
+            /* Drastically improved clamp for fitting small screens and filling large ones */
+            font-size: clamp(22px, 5vh, 65px); 
+            font-weight: 900;
+            line-height: 1;
+            margin: 2px 0;
+        }
+        .status-on .loc-status-text { color: var(--corp-green); }
+        .status-off .loc-status-text { color: var(--corp-red); }
+
+        /* Timer Box */
+        .timer-container {
+            background: rgba(255,255,255,0.6);
+            padding: clamp(4px, 1vh, 15px) clamp(10px, 2vw, 30px);
+            border-radius: 18px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            max-width: clamp(180px, 40%, 300px); /* Responsive width */
+            border: 1px solid rgba(0,0,0,0.04);
+            backdrop-filter: blur(4px);
+            margin: 4px 0;
+        }
+
+        .data-label {
+            font-size: clamp(8px, 1.2vh, 12px);
+            font-weight: 700;
+            color: var(--gray-text);
+            text-transform: uppercase;
+            margin-bottom: 0;
+        }
+        
+        .timer-main {
+            font-size: clamp(20px, 3.5vh, 42px);
+            font-weight: 800;
+            color: var(--corp-blue);
+            font-variant-numeric: tabular-nums;
+            line-height: 1.1;
+        }
+
+        .time-sub-value {
+            font-size: clamp(11px, 1.8vh, 18px);
+            font-weight: 700;
+            color: var(--corp-black);
+        }
+
+        .meta-link {
+            font-size: clamp(10px, 1.5vh, 14px);
+            font-weight: 700;
+            color: var(--corp-blue);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            padding: clamp(4px, 0.8vh, 8px) clamp(10px, 1vw, 20px);
+            background: #ffffff;
+            border: 1px solid #cbd5e1;
+            border-radius: 30px;
+            /* No fixed margin-top, rely on space-evenly */
+        }
+
+        /* --- UTILS --- */
+        .loader-overlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(255,255,255,0.92);
+            display: flex; justify-content: center; align-items: center;
+            z-index: 10; backdrop-filter: blur(2px); border-radius: 22px;
+        }
+        .spinner { animation: spin 1s linear infinite; color: var(--corp-blue); width: 30px; height: 30px; }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+        .pulse { animation: pulse-anim 2s infinite; }
+        @keyframes pulse-anim { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
+
+        /* 
+           =========================================
+           UPDATED MODAL STYLES
+           ========================================= 
+        */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(5px);
+            z-index: 100;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .modal-box {
+            background: #fff;
+            border-radius: 24px;
+            width: 100%;
+            /* Responsive Width */
+            max-width: 420px; /* Mobile Default */
+            
+            display: flex;
+            flex-direction: column;
+            
+            box-shadow: 0 20px 50px rgba(0,0,0,0.25);
+            max-height: 85vh; /* Keep it within viewport */
+            overflow: hidden; /* Hide outer overflow, scroll internal content */
+            position: relative;
+        }
+
+        /* Desktop Width Adjustment */
+        @media (min-width: 768px) {
+            .modal-box {
+                max-width: 700px; /* Much wider on desktop */
+            }
+        }
+
+        /* Header Area (Fixed at top) */
+        .modal-header {
+            padding: 25px 30px 10px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            flex-shrink: 0; /* Prevent shrinking */
+        }
+
+        .modal-title { 
+            font-size: 20px; 
+            font-weight: 800; 
+            color: var(--corp-blue); 
+            margin: 0;
+            padding-right: 10px;
+        }
+
+        .modal-close-icon {
+            color: var(--gray-text);
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 4px;
+            border-radius: 8px;
+        }
+        .modal-close-icon:hover {
+            color: var(--corp-red);
+            background: var(--corp-red-bg);
+        }
+
+        /* Scrollable Content Area */
+        .modal-content-scroll {
+            padding: 10px 30px 25px 30px;
+            overflow-y: auto;
+            text-align: left;
+            flex-grow: 1; /* Take remaining space */
+            
+            /* Custom Scrollbar Styling (Firefox) */
+            scrollbar-width: thin;
+            scrollbar-color: #cbd5e1 transparent;
+        }
+
+        /* Custom Scrollbar Styling (Webkit: Chrome, Safari, Edge) */
+        .modal-content-scroll::-webkit-scrollbar {
+            width: 8px;
+        }
+        .modal-content-scroll::-webkit-scrollbar-track {
+            background: transparent;
+            margin: 10px 0;
+        }
+        .modal-content-scroll::-webkit-scrollbar-thumb {
+            background-color: #cbd5e1;
+            border-radius: 10px;
+            border: 2px solid #fff; /* Padding effect */
+        }
+        .modal-content-scroll::-webkit-scrollbar-thumb:hover {
+            background-color: #94a3b8;
+        }
+
+        .modal-text { 
+            font-size: 14px; 
+            line-height: 1.6; 
+            color: var(--corp-black); 
+            margin-bottom: 24px; 
+        }
+
+        /* Footer / Big Button Area */
+        .modal-footer {
+            padding: 0 30px 30px 30px;
+            flex-shrink: 0;
+        }
+
+        .modal-close-btn {
+            background: var(--corp-blue); color: #fff; border: none; padding: 14px 0;
+            font-size: 16px; font-weight: 700; border-radius: 14px; cursor: pointer; width: 100%;
+            transition: opacity 0.2s;
+        }
+        .modal-close-btn:hover { opacity: 0.9; }
+
+    </style>
+</head>
+<body>
+
+    <div class="dashboard-grid">
+        
+        <!-- 1. ANALYTICS (Top) -->
+        <div id="analytics-box" class="analytics-box">
+            <div class="analytics-left">
+                <div class="analytics-title">
+                    <i data-lucide="activity" style="width: 14px; height: 14px;"></i>
+                    Загальна ситуація
+                </div>
+                <!-- Content inserted here via JS -->
+                <div id="analytics-content" class="analytics-content-wrapper">
+                    <i data-lucide="loader-2" class="spinner"></i>
+                </div>
+            </div>
+            
+            <button class="info-btn" onclick="toggleModal(true)" aria-label="Info">
+                <i data-lucide="info" width="22" height="22"></i>
+            </button>
+        </div>
+
+        <!-- 2. CARD MAIN -->
+        <div id="card-main" class="location-card">
+            <div id="loader-main" class="loader-overlay"><i data-lucide="loader" class="spinner"></i></div>
+            
+            <div class="card-inner-grid">
+                <!-- Left Icon -->
+                <div class="icon-col">
+                    <i data-lucide="landmark" class="side-icon building-icon"></i>
+                </div>
+
+                <!-- Center Content -->
+                <div class="info-col">
+                    <span class="loc-name">Головний корпус</span>
+                    <span class="loc-status-text" id="status-main">...</span>
+                    
+                    <div class="timer-container">
+                        <span class="data-label" id="label-dur-main">Тривалість</span>
+                        <span class="timer-main" id="val-dur-main">0с</span>
+                        <span class="data-label" id="label-start-main" style="margin-top:4px">З'явилось</span>
+                        <span class="time-sub-value" id="val-start-main">--:--</span>
+                    </div>
+
+                    <a href="https://docs.google.com/spreadsheets/d/1OtGMcLwI1qeHg6k-EWCr2D9EG_IfR8LpA_J2PWTTPXU/edit" target="_blank" class="meta-link">
+                        <i data-lucide="table" width="12" height="12"></i> Перевірити таблицю
+                    </a>
+                </div>
+
+                <!-- Right Icon -->
+                <div class="icon-col">
+                    <div id="icon-main" class="icon-col"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. CARD CHEM -->
+        <div id="card-chem" class="location-card">
+            <div id="loader-chem" class="loader-overlay"><i data-lucide="loader" class="spinner"></i></div>
+            
+            <div class="card-inner-grid">
+                <!-- Left Icon -->
+                <div class="icon-col">
+                    <i data-lucide="flask-conical" class="side-icon building-icon"></i>
+                </div>
+
+                <!-- Center Content -->
+                <div class="info-col">
+                    <span class="loc-name">Хімічний факультет</span>
+                    <span class="loc-status-text" id="status-chem">...</span>
+                    
+                    <div class="timer-container">
+                        <span class="data-label" id="label-dur-chem">Тривалість</span>
+                        <span class="timer-main" id="val-dur-chem">0с</span>
+                        <span class="data-label" id="label-start-chem" style="margin-top:4px">З'явилось</span>
+                        <span class="time-sub-value" id="val-start-chem">--:--</span>
+                    </div>
+
+                    <a href="https://chem.knu.ua" target="_blank" class="meta-link">
+                        <i data-lucide="globe" width="12" height="12"></i> Перевірити сайт
+                    </a>
+                </div>
+
+                <!-- Right Icon -->
+                <div class="icon-col">
+                    <div id="icon-chem" class="icon-col"></div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- 
+       UPDATED Info Modal Structure 
+       - Header with Cross
+       - Scrollable Content Container
+       - Footer with Button
+    -->
+    <div id="info-modal" class="modal-overlay" onclick="if(event.target === this) toggleModal(false)">
+        <div class="modal-box">
+            
+            <!-- Fixed Header -->
+            <div class="modal-header">
+                <div class="modal-title">Коротка довідка</div>
+                <div class="modal-close-icon" onclick="toggleModal(false)" aria-label="Close">
+                    <i data-lucide="x" width="24" height="24"></i>
+                </div>
+            </div>
+
+            <!-- Scrollable Content -->
+            <div class="modal-content-scroll">
+                <div class="modal-text">
+                    <h4 style="margin: 0 0 10px 0; color:var(--corp-blue);">Що означають статуси</h4>
+                    <p>💡 <strong>Міське світло:</strong> Працюють обидва корпуси. Є напруга в міській мережі.</p>
+                    <p>⚡ <strong>Генератор:</strong> Світло є <b>тільки</b> в Головному. Хімічний знеструмлений.</p>
+                    <p>🔴 <strong>Світла немає:</strong> Обладнання недоступне в обох корпусах.</p>
+                    
+                    <hr style="border:0; border-top:1px solid #eee; margin: 15px 0;">
+                    
+                    <h4 style="margin: 0 0 10px 0; color:var(--corp-blue);">Як загалом працює бот:</h4>
+                    <p>Цей бот збирає дані з двох незалежних джерел:</p>
+                    <ul style="padding-left: 20px; margin-top: 5px;">
+                        <li style="margin-bottom: 8px;">
+                            <strong>Головний корпус:</strong> У кімнаті для нарад встановлено крихітний комп'ютер (Orange Pi Zero), який працює від розетки. Поки є світло, він відправляє сигнал у Google Таблицю (із частотою від 12 хв. ~ півгодини, між 7:36 ~ 19:30). Прохання <u>не чіпати</u> його!
+                        </li>
+                        <li>
+                            <strong>Хімічний факультет:</strong> Простий онлайн-сервіс перевіряє доступність сайту <b><i>chem.knu.ua</i></b> раз на 15 хвилин (що достатньо часто для інформативності, але водночас не вантажить сайт). Якщо сайт відповідає — серверна факультету зі світлом.
+                        </li>
+                    </ul>
+                    <p style="margin-top: 10px; font-size: 13px; color: #64748b;">
+                        Аналітика поєднує ці дані, а також на основні них може припускати, чи це мережеве живлення, чи генератор. Примітка: у нічний час робота зводиться лише до перевірки хімічного факультету (аби не створювати зайвий трафік в мережі).
+                    </p>
+                </div>
+            </div>
+            
+            <!-- Fixed Footer -->
+            <div class="modal-footer">
+                <button class="modal-close-btn" onclick="toggleModal(false)">Зрозуміло</button>
+            </div>
+            
+        </div>
+    </div>
+
+    <script>
+        lucide.createIcons();
+
+        function toggleModal(show) {
+            const modal = document.getElementById('info-modal');
+            modal.style.display = show ? 'flex' : 'none';
+            // Re-render icons when showing modal to ensure the new 'X' icon is drawn
+            if (show) lucide.createIcons();
+        }
+
+        const CONFIG = {
+            main: { id: 'main', sheetId: '1OtGMcLwI1qeHg6k-EWCr2D9EG_IfR8LpA_J2PWTTPXU', timeoutMins: 35 },
+            chem: { id: 'chem', sheetId: '1unSgxK5BXlGoYZsJSBJpESTVIZXJc09acC8GxjGqDIQ', timeoutMins: 20 }
+        };
+
+        const globalState = {
+            main: { isOnline: null, initialized: false, startTime: null, lastSeen: null },
+            chem: { isOnline: null, initialized: false, startTime: null, lastSeen: null }
+        };
+
+        // Replaced SVG paths with Lucide icon names
+        const ICONS = {
+            zap: 'zap',
+            moon: 'moon',
+            check: 'check-circle',
+            off: 'power-off',
+            alert: 'triangle-alert'
+        };
+
+        function parseGoogleDate(rawValue) {
+            if (typeof rawValue === 'string' && rawValue.indexOf('Date') !== -1) {
+                const parts = rawValue.match(/\d+/g).map(Number);
+                return new Date(parts[0], parts[1], parts[2], parts[3], parts[4], parts[5]);
+            }
+            return new Date(rawValue);
+        }
+
+        function formatDuration(diffMs) {
+            const seconds = Math.floor((diffMs / 1000) % 60);
+            const minutes = Math.floor((diffMs / (1000 * 60)) % 60);
+            const hours = Math.floor((diffMs / (1000 * 60 * 60)) % 24);
+            const days = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+
+            let str = "";
+            if (days > 0) str += `${days}д `;
+            str += `${hours}:${minutes.toString().padStart(2,'0')}:${seconds.toString().padStart(2,'0')}`;
+            return str;
+        }
+
+        function formatSmartDate(date) {
+            const now = new Date();
+            const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+            const startOfDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+            
+            const msPerDay = 24 * 60 * 60 * 1000;
+            const diffDays = Math.round((startOfToday - startOfDate) / msPerDay);
+            
+            const timeStr = new Intl.DateTimeFormat('uk-UA', { hour: '2-digit', minute: '2-digit' }).format(date);
+            
+            if (diffDays === 0) {
+                return `Сьогодні о ${timeStr}`;
+            } else if (diffDays === 1) {
+                return `Вчора о ${timeStr}`;
+            } else {
+                const dayMonth = new Intl.DateTimeFormat('uk-UA', { day: 'numeric', month: 'long' }).format(date);
+                return `${dayMonth} о ${timeStr}`;
+            }
+        }
+
+        function tickDurations() {
+            const now = new Date();
+            ['main', 'chem'].forEach(id => {
+                const state = globalState[id];
+                if (!state.initialized) return;
+
+                const valDur = document.getElementById(`val-dur-${id}`);
+                const diff = state.isOnline ? (now - state.startTime) : (now - state.lastSeen);
+                valDur.innerText = formatDuration(diff);
+            });
+        }
+
+        function updateAnalytics() {
+            if (!globalState.main.initialized || !globalState.chem.initialized) return;
+
+            const box = document.getElementById('analytics-box');
+            const content = document.getElementById('analytics-content');
+            
+            const m = globalState.main.isOnline;
+            const c = globalState.chem.isOnline;
+            
+            // Using Lucide icons via data-lucide attribute
+            if (c) {
+                box.className = 'analytics-box ana-city';
+                content.innerHTML = `<i data-lucide="${ICONS.check}" class="ana-icon-svg"></i> <span class="analytics-text-val">МІСЬКЕ<br>СВІТЛО</span>`;
+            } else if (m && !c) {
+                box.className = 'analytics-box ana-gen';
+                content.innerHTML = `<i data-lucide="${ICONS.alert}" class="ana-icon-svg"></i> <div style="display:flex;flex-direction:column;"><span class="analytics-text-val">ГЕНЕРАТОР</span><span class="analytics-sub">ТІЛЬКИ ГОЛОВНИЙ</span></div>`;
+            } else {
+                box.className = 'analytics-box ana-off';
+                content.innerHTML = `<i data-lucide="${ICONS.off}" class="ana-icon-svg"></i> <span class="analytics-text-val">СВІТЛА<br>НЕМАЄ</span>`;
+            }
+            
+            // Re-render icons
+            lucide.createIcons();
+        }
+
+        function processData(json, conf) {
+            try {
+                if (!json.table || !json.table.rows || json.table.rows.length === 0) throw new Error("Empty");
+                let dates = json.table.rows.map(r => (r.c && r.c[0] && r.c[0].v) ? parseGoogleDate(r.c[0].v) : null).filter(d => d);
+                if (dates.length === 0) throw new Error("No Dates");
+
+                dates.sort((a, b) => b - a);
+                const lastDate = dates[0];
+                const now = new Date();
+
+                let sessionStartDate = lastDate;
+                for (let i = 0; i < dates.length - 1; i++) {
+                    if (((dates[i] - dates[i+1]) / 60000) > conf.timeoutMins) { sessionStartDate = dates[i]; break; }
+                    sessionStartDate = dates[i+1];
+                }
+
+                updateCardState(conf, lastDate, sessionStartDate, now);
+            } catch (error) {
+                console.error(conf.id, error);
+                document.getElementById(`status-${conf.id}`).innerText = "ПОМИЛКА";
+                document.getElementById(`loader-${conf.id}`).style.display = 'none';
+            }
+        }
+
+        function updateCardState(conf, lastDate, startDate, now) {
+            const id = conf.id;
+            const diffMins = Math.floor((now - lastDate) / 60000);
+            const isOnline = diffMins <= conf.timeoutMins;
+
+            globalState[id].isOnline = isOnline;
+            globalState[id].initialized = true;
+            globalState[id].startTime = startDate;
+            globalState[id].lastSeen = lastDate;
+            
+            updateAnalytics();
+
+            const card = document.getElementById(`card-${id}`);
+            const status = document.getElementById(`status-${id}`);
+            const visual = document.getElementById(`icon-${id}`);
+            const loader = document.getElementById(`loader-${id}`);
+            
+            const labelDur = document.getElementById(`label-dur-${id}`);
+            const labelStart = document.getElementById(`label-start-${id}`);
+            const valStart = document.getElementById(`val-start-${id}`);
+            
+            // Set up icon string name
+            let iconName = '';
+            
+            if (isOnline) {
+                card.className = 'location-card status-on';
+                status.innerText = 'Є СВІТЛО';
+                iconName = ICONS.zap;
+                
+                labelDur.innerText = "Світло є вже";
+                labelStart.innerText = "З'явилось";
+                valStart.innerText = formatSmartDate(startDate);
+            } else {
+                card.className = 'location-card status-off';
+                status.innerText = 'НЕМАЄ';
+                iconName = ICONS.moon;
+                
+                labelDur.innerText = "Відсутнє вже";
+                labelStart.innerText = "Зникло";
+                valStart.innerText = formatSmartDate(lastDate);
+            }
+            
+            // Inject Lucide Icon element
+            // We apply 'side-icon' and 'status-icon' directly here.
+            // If online, we also add 'pulse' animation class.
+            visual.innerHTML = `<i data-lucide="${iconName}" class="side-icon status-icon ${isOnline ? 'pulse' : ''}"></i>`;
+            
+            // Re-render icons to transform <i> into <svg>
+            lucide.createIcons();
+            
+            loader.style.display = 'none';
+            tickDurations();
+        }
+
+        window.cbMain = (json) => processData(json, CONFIG.main);
+        window.cbChem = (json) => processData(json, CONFIG.chem);
+
+        function fetchData() {
+            ['main', 'chem'].forEach(key => {
+                const sId = `script-${key}`;
+                if(document.getElementById(sId)) document.getElementById(sId).remove();
+                const s = document.createElement('script');
+                s.id = sId;
+                s.src = `https://docs.google.com/spreadsheets/d/${CONFIG[key].sheetId}/gviz/tq?tqx=responseHandler:cb${key.charAt(0).toUpperCase()+key.slice(1)}&tq=select%20A%20order%20by%20A%20desc%20limit%20150&_=${Date.now()}`;
+                document.body.appendChild(s);
+            });
+        }
+
+        fetchData();
+        setInterval(fetchData, 5000);
+        setInterval(tickDurations, 1000);
+    </script>
+</body>
+</html>
