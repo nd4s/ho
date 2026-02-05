@@ -560,43 +560,79 @@
         .modal-footer {
             padding: 0 30px 30px 30px;
             flex-shrink: 0;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
         }
-        .modal-close-btn {
-            background: var(--corp-blue); color: #fff; border: none; padding: 14px 0;
-            font-size: 16px; font-weight: 700; border-radius: 14px; cursor: pointer; width: 100%;
-            transition: opacity 0.2s;
+        .modal-btn {
+            border: none; padding: 14px 0;
+            font-size: 14px; font-weight: 700; border-radius: 14px; cursor: pointer; width: 100%;
+            transition: opacity 0.2s, background 0.2s;
+            display: flex; align-items: center; justify-content: center; gap: 6px;
         }
-        .modal-close-btn:hover { opacity: 0.9; }
+        .modal-btn:hover { opacity: 0.9; }
+        
+        .btn-close {
+            background: #f1f5f9; 
+            color: var(--gray-text);
+        }
+        .btn-save {
+            background: var(--corp-blue); 
+            color: #fff;
+        }
 
-        /* HISTORY LIST STYLES */
+        /* --- UPDATED HISTORY LIST STYLES (Minified) --- */
         .history-date-header {
-            font-size: 13px;
+            font-size: 12px;
             font-weight: 800;
             color: var(--gray-text);
             text-transform: uppercase;
-            margin-top: 15px;
-            margin-bottom: 8px;
+            margin-top: 12px;
+            margin-bottom: 6px;
             border-bottom: 1px solid #e2e8f0;
-            padding-bottom: 4px;
+            padding-bottom: 2px;
         }
         .history-date-header:first-child { margin-top: 0; }
         
         .history-item {
-            display: flex;
+            display: grid;
+            grid-template-columns: auto 1fr auto;
             align-items: center;
-            justify-content: space-between;
-            padding: 10px;
+            padding: 8px 12px; /* Smaller padding */
             background: #f8fafc;
-            border-radius: 12px;
-            margin-bottom: 8px;
+            border-radius: 10px; /* Slightly smaller radius */
+            margin-bottom: 6px; /* Reduced margin */
             border: 1px solid transparent;
+            gap: 10px;
         }
         .history-item.h-on { background: var(--corp-green-bg); border-color: var(--corp-green-border); }
         .history-item.h-off { background: var(--corp-red-bg); border-color: var(--corp-red-border); }
         
-        .h-time { font-weight: 700; font-size: 15px; color: var(--corp-black); }
-        .h-status { font-weight: 800; font-size: 12px; text-transform: uppercase; margin-left: auto; margin-right: 10px; display: flex; align-items: center; gap: 6px; }
-        .h-dur { font-size: 11px; font-weight: 600; opacity: 0.7; }
+        /* Smaller font sizes for better fit */
+        .h-time { 
+            font-weight: 700; 
+            font-size: 13px; /* Reduced from 15px */
+            color: var(--corp-black); 
+            white-space: nowrap;
+        }
+        .h-status { 
+            font-weight: 800; 
+            font-size: 10px; /* Reduced from 12px */
+            text-transform: uppercase; 
+            display: flex; 
+            align-items: center; 
+            justify-content: flex-end;
+            gap: 4px;
+            text-align: right;
+        }
+        .h-dur { 
+            font-size: 10px; /* Reduced from 11px */
+            font-weight: 600; 
+            opacity: 0.7; 
+            min-width: 30px;
+            text-align: right;
+            white-space: nowrap;
+        }
         
         .h-on .h-status { color: var(--corp-green); }
         .h-off .h-status { color: var(--corp-red); }
@@ -803,7 +839,10 @@
             </div>
             
             <div class="modal-footer">
-                <button class="modal-close-btn" onclick="closeModal()">Закрити</button>
+                <button class="modal-btn btn-close" onclick="closeModal()">Закрити</button>
+                <button id="btn-save-hist" class="modal-btn btn-save" onclick="saveHistoryAsPng()" style="display:none;">
+                    <i data-lucide="download" width="16" height="16"></i> Зберегти
+                </button>
             </div>
             
         </div>
@@ -831,11 +870,13 @@
         const bodyInfo = document.getElementById('modal-body-info');
         const bodyQr = document.getElementById('modal-body-qr');
         const bodyHistory = document.getElementById('modal-body-history');
+        const btnSaveHist = document.getElementById('btn-save-hist');
 
         function toggleModal(type, extraData) {
             bodyInfo.style.display = 'none';
             bodyQr.style.display = 'none';
             bodyHistory.style.display = 'none';
+            btnSaveHist.style.display = 'none'; // Hide by default
             
             if (type === 'info') {
                 modalTitle.innerText = "Коротка довідка";
@@ -849,6 +890,7 @@
                 modalTitle.innerText = extraData.title;
                 bodyHistory.style.display = 'block';
                 bodyHistory.innerHTML = extraData.content;
+                btnSaveHist.style.display = 'flex'; // Show Save button only for history
                 lucide.createIcons();
             }
             
@@ -871,6 +913,62 @@
             const title = type === 'main' ? 'Історія: Головний' : 'Історія: Хімічний';
             const htmlContent = generateHistoryHtml(state.rows, CONFIG[type].timeoutMins, type);
             toggleModal('history', { title: title, content: htmlContent });
+        }
+
+        function saveHistoryAsPng() {
+            const content = document.getElementById('modal-body-history');
+            const title = document.getElementById('modal-title-text').innerText;
+            const btn = document.getElementById('btn-save-hist');
+            
+            if (!content || content.innerHTML.trim() === "") return;
+
+            // Visual feedback
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i data-lucide="loader-2" class="spinner"></i> Генерую...';
+            lucide.createIcons();
+
+            // Create temporary container for full-list capture (off-screen)
+            const tempDiv = document.createElement('div');
+            tempDiv.style.position = 'absolute';
+            tempDiv.style.top = '-9999px';
+            tempDiv.style.left = '0';
+            tempDiv.style.width = '450px'; // Fixed width for better export
+            tempDiv.style.background = '#ffffff';
+            tempDiv.style.padding = '20px 20px 40px 20px';
+            tempDiv.style.fontFamily = "'Montserrat', sans-serif";
+            tempDiv.style.borderRadius = '12px';
+            
+            // Build the export HTML
+            tempDiv.innerHTML = `
+                <h2 style="color:#1e3a8a; margin:0 0 5px 0; text-align:center; font-size:20px; font-weight:800;">${title}</h2>
+                <div style="margin-bottom:20px; text-align:center; font-size:11px; color:#64748b; font-weight:600;">Згенеровано: ${new Date().toLocaleString('uk-UA')}</div>
+                ${content.innerHTML}
+            `;
+            
+            document.body.appendChild(tempDiv);
+            
+            // Ensure icons are rendered in the clone
+            lucide.createIcons({ root: tempDiv });
+
+            // Capture
+            setTimeout(() => {
+                html2canvas(tempDiv, { scale: 2, backgroundColor: '#ffffff', useCORS: true }).then(canvas => {
+                    const link = document.createElement('a');
+                    link.download = `History_${Date.now()}.png`;
+                    link.href = canvas.toDataURL();
+                    link.click();
+                    
+                    document.body.removeChild(tempDiv);
+                    btn.innerHTML = originalText;
+                    lucide.createIcons();
+                }).catch(err => {
+                    console.error(err);
+                    alert("Помилка збереження");
+                    document.body.removeChild(tempDiv);
+                    btn.innerHTML = originalText;
+                    lucide.createIcons();
+                });
+            }, 100);
         }
 
         /* --- HISTORY GENERATOR WITH GAP FILLING --- */
@@ -981,7 +1079,7 @@
                     // Generator Icon Logic
                     let genIcon = '';
                     if (s.isGen) {
-                        genIcon = `<i data-lucide="zap" style="width:14px; height:14px; fill:var(--corp-yellow); color:var(--corp-yellow);" title="Генератор"></i>`;
+                        genIcon = `<i data-lucide="zap" style="width:12px; height:12px; fill:var(--corp-yellow); color:var(--corp-yellow);" title="Генератор"></i>`;
                     }
 
                     html += `
