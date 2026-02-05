@@ -759,15 +759,22 @@
             valLast.innerText = formatTimeOnly(lastDate);
 
             // Calculate Next
-            // Chem: +15 mins strict schedule
-            // Main: +30 mins window approx
-            let nextTime = new Date(lastDate.getTime());
+            // Logic changed to calculate forward from NOW based on grid intervals (15 mins for Chem, 30 for Main)
+            let nextTime = new Date(); 
+            
             if (id === 'chem') {
-                nextTime.setMinutes(nextTime.getMinutes() + 15);
+                // Next 15-min mark (00, 15, 30, 45)
+                const interval = 15;
+                const minutesToAdd = interval - (nextTime.getMinutes() % interval);
+                nextTime.setMinutes(nextTime.getMinutes() + minutesToAdd);
+                nextTime.setSeconds(0);
                 valNext.innerText = formatTimeOnly(nextTime);
             } else {
-                nextTime.setMinutes(nextTime.getMinutes() + 30);
-                // Main building is approximation
+                // Next 30-min mark (00, 30) - Strict timing as requested
+                const interval = 30;
+                const minutesToAdd = interval - (nextTime.getMinutes() % interval);
+                nextTime.setMinutes(nextTime.getMinutes() + minutesToAdd);
+                nextTime.setSeconds(0);
                 valNext.innerText = "~" + formatTimeOnly(nextTime);
             }
             
