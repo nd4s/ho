@@ -659,7 +659,22 @@
                 if (!state.initialized) return;
 
                 const valDur = document.getElementById(`val-dur-${id}`);
-                const diff = state.isOnline ? (now - state.startTime) : (now - state.lastSeen);
+                
+                let diff;
+                if (state.isOnline) {
+                    // Online: Duration since it started
+                    diff = now - state.startTime;
+                } else {
+                    // Offline
+                    if (id === 'chem') {
+                        // Chem has explicit 'OFFLINE' rows, so startTime marks the beginning of the outage.
+                        diff = now - state.startTime;
+                    } else {
+                        // Main relies on timeout (no data), so we measure from the last time we saw it.
+                        diff = now - state.lastSeen;
+                    }
+                }
+                
                 valDur.innerText = formatDuration(diff);
             });
         }
@@ -690,20 +705,55 @@
         function processData(json, conf) {
             try {
                 if (!json.table || !json.table.rows || json.table.rows.length === 0) throw new Error("Empty");
-                let dates = json.table.rows.map(r => (r.c && r.c[0] && r.c[0].v) ? parseGoogleDate(r.c[0].v) : null).filter(d => d);
-                if (dates.length === 0) throw new Error("No Dates");
+                
+                // Parse rows into objects with Date and Status
+                let rows = json.table.rows.map(r => {
+                    // Column index logic:
+                    // Main: 'select A' -> c[0] is Date.
+                    // Chem: 'select A,C' -> c[0] is Date, c[1] is Status.
+                    
+                    const dateVal = (r.c && r.c[0] && r.c[0].v) ? parseGoogleDate(r.c[0].v) : null;
+                    // If conf is chem, we expect column index 1 to be the status. 
+                    // Main doesn't have explicit status (assumed online if row exists).
+                    const statusVal = (conf.id === 'chem' && r.c && r.c[1]) ? r.c[1].v : 'ONLINE';
+                    
+                    return { date: dateVal, status: statusVal };
+                }).filter(item => item.date);
 
-                dates.sort((a, b) => b - a);
-                const lastDate = dates[0];
+                if (rows.length === 0) throw new Error("No Dates");
+
+                // Sort by date descending
+                rows.sort((a, b) => b.date - a.date);
+                
+                const lastEntry = rows[0];
                 const now = new Date();
 
-                let sessionStartDate = lastDate;
-                for (let i = 0; i < dates.length - 1; i++) {
-                    if (((dates[i] - dates[i+1]) / 60000) > conf.timeoutMins) { sessionStartDate = dates[i]; break; }
-                    sessionStartDate = dates[i+1];
+                // Determine "Session Start Date"
+                // This logic finds how long the status has been continuous.
+                // It looks for a break in time OR a change in status (for Chem).
+                let sessionStartDate = lastEntry.date;
+                
+                for (let i = 0; i < rows.length - 1; i++) {
+                    const curr = rows[i];
+                    const prev = rows[i+1];
+                    
+                    // Check time gap
+                    const timeDiff = (curr.date - prev.date) / 60000;
+                    if (timeDiff > conf.timeoutMins) {
+                        sessionStartDate = curr.date;
+                        break;
+                    }
+                    
+                    // Check status switch (Only relevant for Chem)
+                    if (conf.id === 'chem' && curr.status !== prev.status) {
+                        sessionStartDate = curr.date;
+                        break;
+                    }
+                    
+                    sessionStartDate = prev.date;
                 }
 
-                updateCardState(conf, lastDate, sessionStartDate, now);
+                updateCardState(conf, lastEntry.date, sessionStartDate, now, lastEntry.status);
             } catch (error) {
                 console.error(conf.id, error);
                 document.getElementById(`status-${conf.id}`).innerText = "ПОМИЛКА";
@@ -711,10 +761,17 @@
             }
         }
 
-        function updateCardState(conf, lastDate, startDate, now) {
+        function updateCardState(conf, lastDate, startDate, now, explicitStatus = 'ONLINE') {
             const id = conf.id;
             const diffMins = Math.floor((now - lastDate) / 60000);
-            const isOnline = diffMins <= conf.timeoutMins;
+            
+            // 1. Check time freshness
+            let isOnline = diffMins <= conf.timeoutMins;
+            
+            // 2. Override based on explicit status (for Chem: even if fresh, if status is OFFLINE -> Offline)
+            if (isOnline && explicitStatus === 'OFFLINE') {
+                isOnline = false;
+            }
 
             globalState[id].isOnline = isOnline;
             globalState[id].initialized = true;
@@ -752,25 +809,30 @@
                 
                 labelDur.innerText = "Відсутнє вже";
                 labelStart.innerText = "Зникло";
-                valStart.innerText = formatTimeOnly(lastDate);
+                
+                // Handling displayed time for "Disappeared at":
+                if (id === 'chem') {
+                    // For Chem, we know exactly when it went OFFLINE (startDate).
+                    valStart.innerText = formatTimeOnly(startDate); 
+                } else {
+                    // For Main (Timeout), we only know when we last saw it.
+                    valStart.innerText = formatTimeOnly(lastDate);
+                }
             }
 
             // --- Fill Actual & Next ---
             valLast.innerText = formatTimeOnly(lastDate);
 
             // Calculate Next
-            // Logic changed to calculate forward from NOW based on grid intervals (15 mins for Chem, 30 for Main)
             let nextTime = new Date(); 
             
             if (id === 'chem') {
-                // Next 15-min mark (00, 15, 30, 45)
                 const interval = 15;
                 const minutesToAdd = interval - (nextTime.getMinutes() % interval);
                 nextTime.setMinutes(nextTime.getMinutes() + minutesToAdd);
                 nextTime.setSeconds(0);
                 valNext.innerText = formatTimeOnly(nextTime);
             } else {
-                // Next 30-min mark (00, 30) - Strict timing as requested
                 const interval = 30;
                 const minutesToAdd = interval - (nextTime.getMinutes() % interval);
                 nextTime.setMinutes(nextTime.getMinutes() + minutesToAdd);
@@ -792,9 +854,19 @@
             ['main', 'chem'].forEach(key => {
                 const sId = `script-${key}`;
                 if(document.getElementById(sId)) document.getElementById(sId).remove();
+                
                 const s = document.createElement('script');
                 s.id = sId;
-                s.src = `https://docs.google.com/spreadsheets/d/${CONFIG[key].sheetId}/gviz/tq?tqx=responseHandler:cb${key.charAt(0).toUpperCase()+key.slice(1)}&tq=select%20A%20order%20by%20A%20desc%20limit%20150&_=${Date.now()}`;
+                
+                // IMPORTANT FIX:
+                // For Main: Just select A (Timestamp).
+                // For Chem: Select A (Timestamp) AND C (Status).
+                let query = "select%20A";
+                if (key === 'chem') {
+                    query = "select%20A,C";
+                }
+
+                s.src = `https://docs.google.com/spreadsheets/d/${CONFIG[key].sheetId}/gviz/tq?tqx=responseHandler:cb${key.charAt(0).toUpperCase()+key.slice(1)}&tq=${query}%20order%20by%20A%20desc%20limit%20150&_=${Date.now()}`;
                 document.body.appendChild(s);
             });
         }
