@@ -11,6 +11,8 @@
     
     <!-- Lucide Icons (SVGs) -->
     <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- HTML2Canvas for Screenshots -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     
     <style>
         :root {
@@ -48,29 +50,30 @@
 
         /* 
            MASTER GRID 
-           Optimized gap and padding for better fitting
+           Optimized gap and padding for better fitting with the new footer
         */
         .dashboard-grid {
             display: grid;
             width: 100%;
             height: 100%;
-            padding: clamp(10px, 2vh, 25px); /* Responsive padding */
-            gap: clamp(10px, 2vh, 25px);     /* Responsive gap */
+            /* Reduced padding/gap slightly to fit footer */
+            padding: clamp(8px, 1.5vh, 20px); 
+            gap: clamp(8px, 1.5vh, 20px);     
             
-            /* Mobile: Top Auto, Bottom two split remaining space equally */
+            /* Mobile: Top -> Card 1 -> Card 2 -> Footer */
             grid-template-columns: 1fr;
-            grid-template-rows: auto minmax(0, 1fr) minmax(0, 1fr);
+            grid-template-rows: auto minmax(0, 1fr) minmax(0, 1fr) auto;
             
-            max-width: 1800px; /* Increased max-width for large desktops */
+            max-width: 1800px;
             margin: 0 auto;
         }
 
-        /* Desktop: Top bar, then two columns below */
+        /* Desktop: Top bar, then two columns below, then footer spanning full width */
         @media (min-width: 768px) {
             .dashboard-grid {
                 grid-template-columns: 1fr 1fr;
-                /* Top row sized by content, Bottom row takes the rest */
-                grid-template-rows: auto minmax(0, 1fr); 
+                /* Top (auto) -> Content (remaining) -> Footer (auto) */
+                grid-template-rows: auto minmax(0, 1fr) auto; 
             }
         }
 
@@ -83,11 +86,11 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: clamp(10px, 1.5vh, 30px); /* Tighter padding on small screens */
+            padding: clamp(8px, 1.2vh, 25px); /* Tighter padding */
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
             transition: all 0.3s ease;
             flex-shrink: 0; 
-            max-height: 15vh; /* Prevent header from eating too much space on mobile */
+            max-height: 15vh; 
         }
 
         .analytics-left {
@@ -99,7 +102,7 @@
         }
 
         .analytics-title {
-            font-size: clamp(10px, 1.5vh, 14px); /* Smaller min font */
+            font-size: clamp(10px, 1.5vh, 14px);
             font-weight: 700;
             text-transform: uppercase;
             color: var(--gray-text);
@@ -114,17 +117,15 @@
             gap: clamp(10px, 2vw, 20px);
         }
 
-        /* CONTROL THE SVG SIZE STRICTLY */
         .ana-icon-svg {
-            /* Wider range: smaller on phone, bigger on desktop */
-            width: clamp(35px, 6vh, 80px); 
-            height: clamp(35px, 6vh, 80px);
+            width: clamp(30px, 5vh, 70px); 
+            height: clamp(30px, 5vh, 70px);
             flex-shrink: 0; 
         }
 
         .analytics-text-val {
-            /* Adjusted for better scaling */
-            font-size: clamp(18px, 4vh, 42px);
+            /* Slightly Reduced for better fitting */
+            font-size: clamp(16px, 3.5vh, 36px);
             font-weight: 900;
             text-transform: uppercase;
             line-height: 0.95;
@@ -158,7 +159,6 @@
             background: #ffffff;
             border: 2px solid #e2e8f0;
             border-radius: 50%;
-            /* Responsive button size */
             width: clamp(36px, 5vh, 48px);
             height: clamp(36px, 5vh, 48px);
             display: flex;
@@ -188,17 +188,14 @@
         .location-card.status-on { background: var(--corp-green-bg); border-color: var(--corp-green-border); }
         .location-card.status-off { background: var(--corp-red-bg); border-color: var(--corp-red-border); }
 
-        /* The grid inside the card: Icon | Content | Icon */
         .card-inner-grid {
             display: grid;
-            /* Changed from fixed pixels to responsive percentages/fractions */
             grid-template-columns: 15% 1fr 15%;
             width: 100%;
             height: 100%;
             align-items: center;
         }
 
-        /* Side Icons - STRICTLY SIZED */
         .icon-col {
             display: flex;
             justify-content: center;
@@ -207,9 +204,8 @@
         }
         
         .side-icon {
-            /* More dynamic sizing */
-            width: clamp(28px, 4vw, 60px);
-            height: clamp(28px, 4vw, 60px);
+            width: clamp(24px, 3.5vw, 55px);
+            height: clamp(24px, 3.5vw, 55px);
             transition: all 0.3s;
         }
         
@@ -222,10 +218,9 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            /* Use space-evenly to spread content better on large screens */
             justify-content: space-evenly; 
             text-align: center;
-            padding: 5px 0;
+            padding: 2px 0; /* Reduced padding */
             height: 100%;
             width: 100%;
         }
@@ -241,7 +236,7 @@
 
         .loc-status-text {
             /* REDUCED FONT SIZE for fitting more data */
-            font-size: clamp(20px, 4vh, 48px); 
+            font-size: clamp(18px, 3.5vh, 40px); 
             font-weight: 900;
             line-height: 1;
             margin: 2px 0;
@@ -252,13 +247,13 @@
         /* Timer Box */
         .timer-container {
             background: rgba(255,255,255,0.6);
-            padding: clamp(6px, 1vh, 15px) clamp(10px, 2vw, 30px);
+            padding: clamp(4px, 0.8vh, 12px) clamp(8px, 1.5vw, 25px);
             border-radius: 18px;
             display: flex;
             flex-direction: column;
             align-items: center;
             width: 100%;
-            max-width: clamp(220px, 50%, 350px); /* Slightly wider for grid */
+            max-width: clamp(220px, 50%, 350px);
             border: 1px solid rgba(0,0,0,0.04);
             backdrop-filter: blur(4px);
             margin: 2px 0;
@@ -273,23 +268,21 @@
         }
         
         .timer-main {
-            /* REDUCED FONT SIZE */
-            font-size: clamp(18px, 3vh, 32px);
+            font-size: clamp(16px, 2.5vh, 28px);
             font-weight: 800;
             color: var(--corp-blue);
             font-variant-numeric: tabular-nums;
             line-height: 1.1;
         }
 
-        /* New Grid System for details inside timer */
         .timer-details-grid {
             display: grid;
             grid-template-columns: 1fr 1fr 1fr;
             width: 100%;
             gap: 5px;
-            margin-top: 6px;
+            margin-top: 4px;
             border-top: 1px solid rgba(0,0,0,0.08);
-            padding-top: 6px;
+            padding-top: 4px;
         }
         
         .detail-item {
@@ -300,7 +293,7 @@
         }
 
         .detail-lbl {
-            font-size: clamp(6px, 1vh, 10px);
+            font-size: clamp(6px, 0.9vh, 10px);
             color: #64748b;
             font-weight: 700;
             text-transform: uppercase;
@@ -308,24 +301,76 @@
         }
 
         .detail-val {
-            font-size: clamp(9px, 1.4vh, 14px);
+            font-size: clamp(9px, 1.2vh, 14px);
             font-weight: 700;
             color: var(--corp-black);
             font-variant-numeric: tabular-nums;
         }
 
         .meta-link {
-            font-size: clamp(9px, 1.4vh, 13px);
+            font-size: clamp(8px, 1.2vh, 12px);
             font-weight: 700;
             color: var(--corp-blue);
             text-decoration: none;
             display: flex;
             align-items: center;
             gap: 4px;
-            padding: clamp(4px, 0.8vh, 8px) clamp(10px, 1vw, 20px);
+            padding: clamp(3px, 0.6vh, 6px) clamp(8px, 1vw, 15px);
             background: #ffffff;
             border: 1px solid #cbd5e1;
             border-radius: 30px;
+        }
+
+        /* --- 3. BOTTOM ACTION BAR --- */
+        .action-bar {
+            grid-column: 1 / -1;
+            background: #ffffff;
+            border-radius: 18px;
+            border: 2px solid #e2e8f0;
+            display: flex;
+            justify-content: space-evenly;
+            align-items: center;
+            padding: clamp(6px, 1vh, 12px);
+            box-shadow: 0 -4px 6px -1px rgba(0, 0, 0, 0.05);
+            /* Ensure it fits nicely at the bottom */
+            height: auto; 
+            min-height: clamp(50px, 8vh, 70px);
+        }
+
+        .action-btn {
+            background: transparent;
+            border: none;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: var(--gray-text);
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 12px;
+            transition: all 0.2s;
+            width: 100%;
+        }
+
+        .action-btn:hover {
+            background: #f1f5f9;
+            color: var(--corp-blue);
+        }
+
+        .action-btn:active {
+            transform: scale(0.95);
+        }
+
+        .action-icon {
+            width: clamp(20px, 3vh, 28px);
+            height: clamp(20px, 3vh, 28px);
+            margin-bottom: 2px;
+        }
+
+        .action-label {
+            font-size: clamp(8px, 1vh, 10px);
+            font-weight: 700;
+            text-transform: uppercase;
         }
 
         /* --- UTILS --- */
@@ -422,6 +467,22 @@
             color: var(--corp-black); 
             margin-bottom: 24px; 
         }
+        
+        .qr-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .qr-img {
+            max-width: 200px;
+            width: 100%;
+            height: auto;
+            margin-bottom: 15px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+        }
 
         .modal-footer {
             padding: 0 30px 30px 30px;
@@ -454,7 +515,7 @@
                 </div>
             </div>
             
-            <button class="info-btn" onclick="toggleModal(true)" aria-label="Info">
+            <button class="info-btn" onclick="toggleModal('info')" aria-label="Info">
                 <i data-lucide="info" width="22" height="22"></i>
             </button>
         </div>
@@ -555,21 +616,47 @@
             </div>
         </div>
 
+        <!-- 4. ACTION BAR (Bottom) -->
+        <div class="action-bar">
+            <button class="action-btn" onclick="openQrModal()">
+                <i data-lucide="qr-code" class="action-icon"></i>
+                <span class="action-label">QR</span>
+            </button>
+            <button class="action-btn" onclick="shareLink()">
+                <i data-lucide="share-2" class="action-icon"></i>
+                <span class="action-label">Поділитися</span>
+            </button>
+            <button class="action-btn" onclick="copyLink()">
+                <i id="icon-copy" data-lucide="copy" class="action-icon"></i>
+                <span id="label-copy" class="action-label">Скопіювати</span>
+            </button>
+            <button class="action-btn" onclick="takeScreenshot(true)">
+                <i id="icon-cam" data-lucide="camera" class="action-icon"></i>
+                <span id="label-cam" class="action-label">Надіслати</span>
+            </button>
+            <button class="action-btn" onclick="takeScreenshot(false)">
+                <i id="icon-save" data-lucide="save" class="action-icon"></i>
+                <span id="label-save" class="action-label">Зберегти</span>
+            </button>
+        </div>
+
     </div>
 
     <!-- Info Modal -->
-    <div id="info-modal" class="modal-overlay" onclick="if(event.target === this) toggleModal(false)">
+    <div id="modal-container" class="modal-overlay" onclick="if(event.target === this) closeModal()">
         <div class="modal-box">
             
             <div class="modal-header">
-                <div class="modal-title">Коротка довідка</div>
-                <div class="modal-close-icon" onclick="toggleModal(false)" aria-label="Close">
+                <div class="modal-title" id="modal-title-text">Коротка довідка</div>
+                <div class="modal-close-icon" onclick="closeModal()" aria-label="Close">
                     <i data-lucide="x" width="24" height="24"></i>
                 </div>
             </div>
 
             <div class="modal-content-scroll">
-                <div class="modal-text">
+                
+                <!-- CONTENT FOR INFO -->
+                <div id="modal-body-info" class="modal-text" style="display:none;">
                     <h4 style="margin: 0 0 10px 0; color:var(--corp-blue);">Що означають статуси</h4>
                     <p>💡 <strong>Міське світло:</strong> Працюють обидва корпуси. Є напруга в міській мережі.</p>
                     <p>⚡ <strong>Генератор:</strong> Світло є <b><i>лише</i></b> в Головному корпусі. Хімічний без світла.</p>
@@ -581,21 +668,27 @@
                     <p>Цей бот збирає дані з двох незалежних джерел:</p>
                     <ul style="padding-left: 20px; margin-top: 5px;">
                         <li style="margin-bottom: 8px;">
-                            <strong>Головний корпус:</strong> У кімнаті для нарад встановлено крихітний комп'ютер (Orange Pi Zero), який працює від розетки. Поки є світло, він відправляє сигнал у Google Таблицю (із частотою між 12 хв. ~ півгодини, у час 7:36 ~ 19:30). Прохання <u>не чіпати</u> його!
+                            <strong>Головний корпус:</strong> У кімнаті для нарад встановлено крихітний комп'ютер (Orange Pi Zero), який працює від розетки. Поки є світло, він відправляє сигнал у Google Таблицю.
                         </li>
                         <li>
-                            <strong>Хімічний факультет:</strong> Простий онлайн-сервіс перевіряє доступність сайту <b><i>chem.knu.ua</i></b> раз на 15 хвилин (що достатньо часто для інформативності, але водночас не вантажить сайт). Якщо сайт відповідає — серверна факультету зі світлом.
+                            <strong>Хімічний факультет:</strong> Простий онлайн-сервіс перевіряє доступність сайту <b><i>chem.knu.ua</i></b> раз на 15 хвилин.
                         </li>
                     </ul>
                     <p>Аналітика поєднує ці дані, а також на основні них може припускати, чи це мережеве живлення, чи генератор.</p>
-                    <p style="margin-top: 10px; font-size: 13px; color: #64748b;">
-                        <u>Примітка</u>: у нічний час робота зводиться лише до перевірки хімічного факультету (аби не створювати зайвий трафік в мережі).<br><br><u>Зауваження</u>: бот лише надає зібрану за графіком інформацію. Його не можна "запитати" чи є світло в цю секунду (аби не перевантажувати ні бота, ні сайт).
-                    </p>
                 </div>
+
+                <!-- CONTENT FOR QR -->
+                <div id="modal-body-qr" class="modal-text" style="display:none;">
+                    <div class="qr-container">
+                        <img id="qr-image" src="" alt="QR Code" class="qr-img">
+                        <p style="text-align: center; margin: 0; font-weight: 600;">Відскануйте, щоб відкрити цей бот</p>
+                    </div>
+                </div>
+
             </div>
             
             <div class="modal-footer">
-                <button class="modal-close-btn" onclick="toggleModal(false)">Зрозуміло</button>
+                <button class="modal-close-btn" onclick="closeModal()">Закрити</button>
             </div>
             
         </div>
@@ -604,11 +697,124 @@
     <script>
         lucide.createIcons();
 
-        function toggleModal(show) {
-            const modal = document.getElementById('info-modal');
-            modal.style.display = show ? 'flex' : 'none';
-            if (show) lucide.createIcons();
+        /* --- MODAL LOGIC --- */
+        const modalContainer = document.getElementById('modal-container');
+        const modalTitle = document.getElementById('modal-title-text');
+        const bodyInfo = document.getElementById('modal-body-info');
+        const bodyQr = document.getElementById('modal-body-qr');
+
+        function toggleModal(type) {
+            bodyInfo.style.display = 'none';
+            bodyQr.style.display = 'none';
+            
+            if (type === 'info') {
+                modalTitle.innerText = "Коротка довідка";
+                bodyInfo.style.display = 'block';
+            } else if (type === 'qr') {
+                modalTitle.innerText = "QR Код";
+                bodyQr.style.display = 'block';
+                // Generate QR using API
+                const url = window.location.href;
+                document.getElementById('qr-image').src = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(url)}`;
+            }
+            
+            modalContainer.style.display = 'flex';
+            lucide.createIcons();
         }
+
+        function closeModal() {
+            modalContainer.style.display = 'none';
+        }
+
+        function openQrModal() {
+            toggleModal('qr');
+        }
+
+        /* --- SHARE / COPY LOGIC --- */
+        async function shareLink() {
+            if (navigator.share) {
+                try {
+                    await navigator.share({
+                        title: 'Світло КНУТШ',
+                        text: 'Перевірка світла в корпусах КНУ',
+                        url: window.location.href,
+                    });
+                } catch (err) { console.log('Error sharing', err); }
+            } else {
+                copyLink();
+                alert('Sharing not supported on this browser, link copied!');
+            }
+        }
+
+        function copyLink() {
+            navigator.clipboard.writeText(window.location.href).then(() => {
+                const icon = document.getElementById('icon-copy');
+                const label = document.getElementById('label-copy');
+                const originalIcon = icon.getAttribute('data-lucide');
+                
+                // Visual feedback
+                icon.innerHTML = '<polyline points="20 6 9 17 4 12"></polyline>'; // simple checkmark svg structure
+                icon.style.color = 'var(--corp-green)';
+                label.innerText = "Copied!";
+                label.style.color = 'var(--corp-green)';
+                
+                setTimeout(() => {
+                    // Reset via lucide
+                    icon.setAttribute('data-lucide', 'copy');
+                    icon.style.color = '';
+                    label.innerText = "Copy";
+                    label.style.color = '';
+                    lucide.createIcons();
+                }, 2000);
+            });
+        }
+
+        /* --- SCREENSHOT LOGIC --- */
+        function takeScreenshot(isShare) {
+            const grid = document.querySelector('.dashboard-grid');
+            const btnIcon = document.getElementById(isShare ? 'icon-cam' : 'icon-save');
+            
+            // Visual feedback loading
+            btnIcon.style.opacity = 0.5;
+
+            html2canvas(grid, {
+                scale: 2, // High res
+                backgroundColor: '#f1f5f9', // Force bg color
+                useCORS: true
+            }).then(canvas => {
+                btnIcon.style.opacity = 1;
+
+                if (!isShare) {
+                    // Download (Floppy)
+                    const link = document.createElement('a');
+                    link.download = 'svitlo-knu-dashboard.png';
+                    link.href = canvas.toDataURL();
+                    link.click();
+                } else {
+                    // Share (Camera)
+                    canvas.toBlob(async (blob) => {
+                        if (navigator.share && navigator.canShare && navigator.canShare({ files: [new File([blob], 'shot.png', {type: blob.type})] })) {
+                            try {
+                                const file = new File([blob], 'status.png', { type: blob.type });
+                                await navigator.share({
+                                    title: 'Статус Світла',
+                                    files: [file]
+                                });
+                            } catch (err) { console.error(err); }
+                        } else {
+                            // Fallback: Open in new tab
+                            const newTab = window.open();
+                            newTab.document.body.innerHTML = '<img src="'+canvas.toDataURL()+'" style="width:100%;"/>';
+                        }
+                    });
+                }
+            }).catch(err => {
+                console.error("Screenshot failed", err);
+                btnIcon.style.opacity = 1;
+            });
+        }
+
+        /* --- EXISTING LOGIC BELOW --- */
 
         const CONFIG = {
             main: { id: 'main', sheetId: '1OtGMcLwI1qeHg6k-EWCr2D9EG_IfR8LpA_J2PWTTPXU', timeoutMins: 35 },
@@ -662,15 +868,11 @@
                 
                 let diff;
                 if (state.isOnline) {
-                    // Online: Duration since it started
                     diff = now - state.startTime;
                 } else {
-                    // Offline
                     if (id === 'chem') {
-                        // Chem has explicit 'OFFLINE' rows, so startTime marks the beginning of the outage.
                         diff = now - state.startTime;
                     } else {
-                        // Main relies on timeout (no data), so we measure from the last time we saw it.
                         diff = now - state.lastSeen;
                     }
                 }
@@ -706,50 +908,33 @@
             try {
                 if (!json.table || !json.table.rows || json.table.rows.length === 0) throw new Error("Empty");
                 
-                // Parse rows into objects with Date and Status
                 let rows = json.table.rows.map(r => {
-                    // Column index logic:
-                    // Main: 'select A' -> c[0] is Date.
-                    // Chem: 'select A,C' -> c[0] is Date, c[1] is Status.
-                    
                     const dateVal = (r.c && r.c[0] && r.c[0].v) ? parseGoogleDate(r.c[0].v) : null;
-                    // If conf is chem, we expect column index 1 to be the status. 
-                    // Main doesn't have explicit status (assumed online if row exists).
                     const statusVal = (conf.id === 'chem' && r.c && r.c[1]) ? r.c[1].v : 'ONLINE';
-                    
                     return { date: dateVal, status: statusVal };
                 }).filter(item => item.date);
 
                 if (rows.length === 0) throw new Error("No Dates");
 
-                // Sort by date descending
                 rows.sort((a, b) => b.date - a.date);
                 
                 const lastEntry = rows[0];
                 const now = new Date();
 
-                // Determine "Session Start Date"
-                // This logic finds how long the status has been continuous.
-                // It looks for a break in time OR a change in status (for Chem).
                 let sessionStartDate = lastEntry.date;
                 
                 for (let i = 0; i < rows.length - 1; i++) {
                     const curr = rows[i];
                     const prev = rows[i+1];
-                    
-                    // Check time gap
                     const timeDiff = (curr.date - prev.date) / 60000;
                     if (timeDiff > conf.timeoutMins) {
                         sessionStartDate = curr.date;
                         break;
                     }
-                    
-                    // Check status switch (Only relevant for Chem)
                     if (conf.id === 'chem' && curr.status !== prev.status) {
                         sessionStartDate = curr.date;
                         break;
                     }
-                    
                     sessionStartDate = prev.date;
                 }
 
@@ -765,10 +950,7 @@
             const id = conf.id;
             const diffMins = Math.floor((now - lastDate) / 60000);
             
-            // 1. Check time freshness
             let isOnline = diffMins <= conf.timeoutMins;
-            
-            // 2. Override based on explicit status (for Chem: even if fresh, if status is OFFLINE -> Offline)
             if (isOnline && explicitStatus === 'OFFLINE') {
                 isOnline = false;
             }
@@ -798,7 +980,6 @@
                 card.className = 'location-card status-on';
                 status.innerText = 'Є СВІТЛО';
                 iconName = ICONS.zap;
-                
                 labelDur.innerText = "Світло є вже";
                 labelStart.innerText = "З'явилось";
                 valStart.innerText = formatTimeOnly(startDate);
@@ -806,26 +987,18 @@
                 card.className = 'location-card status-off';
                 status.innerText = 'НЕМАЄ';
                 iconName = ICONS.moon;
-                
                 labelDur.innerText = "Відсутнє вже";
                 labelStart.innerText = "Зникло";
-                
-                // Handling displayed time for "Disappeared at":
                 if (id === 'chem') {
-                    // For Chem, we know exactly when it went OFFLINE (startDate).
                     valStart.innerText = formatTimeOnly(startDate); 
                 } else {
-                    // For Main (Timeout), we only know when we last saw it.
                     valStart.innerText = formatTimeOnly(lastDate);
                 }
             }
 
-            // --- Fill Actual & Next ---
             valLast.innerText = formatTimeOnly(lastDate);
 
-            // Calculate Next
             let nextTime = new Date(); 
-            
             if (id === 'chem') {
                 const interval = 15;
                 const minutesToAdd = interval - (nextTime.getMinutes() % interval);
@@ -854,18 +1027,10 @@
             ['main', 'chem'].forEach(key => {
                 const sId = `script-${key}`;
                 if(document.getElementById(sId)) document.getElementById(sId).remove();
-                
                 const s = document.createElement('script');
                 s.id = sId;
-                
-                // IMPORTANT FIX:
-                // For Main: Just select A (Timestamp).
-                // For Chem: Select A (Timestamp) AND C (Status).
                 let query = "select%20A";
-                if (key === 'chem') {
-                    query = "select%20A,C";
-                }
-
+                if (key === 'chem') query = "select%20A,C";
                 s.src = `https://docs.google.com/spreadsheets/d/${CONFIG[key].sheetId}/gviz/tq?tqx=responseHandler:cb${key.charAt(0).toUpperCase()+key.slice(1)}&tq=${query}%20order%20by%20A%20desc%20limit%20150&_=${Date.now()}`;
                 document.body.appendChild(s);
             });
