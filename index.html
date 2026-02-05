@@ -50,29 +50,22 @@
 
         /* 
            MASTER GRID 
-           Optimized gap and padding for better fitting with the new footer
         */
         .dashboard-grid {
             display: grid;
             width: 100%;
             height: 100%;
-            /* Reduced padding/gap slightly to fit footer */
             padding: clamp(8px, 1.5vh, 20px); 
             gap: clamp(8px, 1.5vh, 20px);     
-            
-            /* Mobile: Top -> Card 1 -> Card 2 -> Footer */
             grid-template-columns: 1fr;
             grid-template-rows: auto minmax(0, 1fr) minmax(0, 1fr) auto;
-            
             max-width: 1800px;
             margin: 0 auto;
         }
 
-        /* Desktop: Top bar, then two columns below, then footer spanning full width */
         @media (min-width: 768px) {
             .dashboard-grid {
                 grid-template-columns: 1fr 1fr;
-                /* Top (auto) -> Content (remaining) -> Footer (auto) */
                 grid-template-rows: auto minmax(0, 1fr) auto; 
             }
         }
@@ -86,7 +79,7 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: clamp(8px, 1.2vh, 25px); /* Tighter padding */
+            padding: clamp(8px, 1.2vh, 25px);
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
             transition: all 0.3s ease;
             flex-shrink: 0; 
@@ -124,7 +117,6 @@
         }
 
         .analytics-text-val {
-            /* Slightly Reduced for better fitting */
             font-size: clamp(16px, 3.5vh, 36px);
             font-weight: 900;
             text-transform: uppercase;
@@ -180,7 +172,7 @@
             display: flex;
             flex-direction: column;
             overflow: hidden;
-            position: relative; /* Essential for absolute positioning of icons */
+            position: relative;
             box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
             height: 100%; 
         }
@@ -190,13 +182,11 @@
 
         /* ICON STYLES */
         .side-icon {
-            /* INCREASED SIZE as requested */
             width: clamp(45px, 7vh, 85px);
             height: clamp(45px, 7vh, 85px);
             transition: all 0.3s;
         }
         
-        /* Absolute Positioning for Corners */
         .icon-top-left {
             position: absolute;
             top: clamp(10px, 2vh, 20px);
@@ -223,12 +213,12 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: space-evenly; /* Kept exactly as original to preserve spacing */
+            justify-content: space-evenly; 
             text-align: center;
-            padding: 2px 0; 
+            padding: 2px 10px; 
             height: 100%;
             width: 100%;
-            z-index: 1; /* Below icons just in case */
+            z-index: 1; 
         }
 
         .loc-name {
@@ -238,7 +228,6 @@
             color: var(--corp-black);
             opacity: 0.7;
             margin-bottom: 0;
-            /* Add small margin top so it doesn't hit the large icons on very small screens */
             margin-top: 2vh; 
         }
 
@@ -314,18 +303,60 @@
             font-variant-numeric: tabular-nums;
         }
 
-        .meta-link {
-            font-size: clamp(8px, 1.2vh, 12px);
-            font-weight: 700;
-            color: var(--corp-blue);
-            text-decoration: none;
+        /* NEW CARD ACTION ROW */
+        .card-actions-row {
             display: flex;
+            width: 100%;
+            max-width: clamp(220px, 50%, 350px);
+            justify-content: space-between;
             align-items: center;
-            gap: 4px;
-            padding: clamp(3px, 0.6vh, 6px) clamp(8px, 1vw, 15px);
+            gap: 10px;
+            margin-top: 2px;
+        }
+
+        .links-group {
+            display: flex;
+            gap: 8px;
+        }
+
+        .icon-link-btn {
+            width: clamp(32px, 5vh, 42px);
+            height: clamp(32px, 5vh, 42px);
             background: #ffffff;
             border: 1px solid #cbd5e1;
-            border-radius: 30px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--gray-text);
+            transition: all 0.2s;
+            cursor: pointer;
+            text-decoration: none;
+        }
+        .icon-link-btn:hover { border-color: var(--corp-blue); color: var(--corp-blue); background: #eff6ff; }
+
+        .history-btn {
+            flex-grow: 1;
+            height: clamp(32px, 5vh, 42px);
+            background: #ffffff;
+            border: 1px solid #cbd5e1;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-size: clamp(10px, 1.3vh, 14px);
+            font-weight: 700;
+            color: var(--corp-blue);
+            cursor: pointer;
+            text-transform: uppercase;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.03);
+            transition: all 0.2s;
+        }
+        .history-btn:hover {
+            background: var(--corp-blue);
+            color: #fff;
+            border-color: var(--corp-blue);
         }
 
         /* --- 3. BOTTOM ACTION BAR --- */
@@ -339,7 +370,6 @@
             align-items: center;
             padding: clamp(6px, 1vh, 12px);
             box-shadow: 0 -4px 6px -1px rgba(0, 0, 0, 0.05);
-            /* Ensure it fits nicely at the bottom */
             height: auto; 
             min-height: clamp(50px, 8vh, 70px);
         }
@@ -359,14 +389,8 @@
             width: 100%;
         }
 
-        .action-btn:hover {
-            background: #f1f5f9;
-            color: var(--corp-blue);
-        }
-
-        .action-btn:active {
-            transform: scale(0.95);
-        }
+        .action-btn:hover { background: #f1f5f9; color: var(--corp-blue); }
+        .action-btn:active { transform: scale(0.95); }
 
         .action-icon {
             width: clamp(20px, 3vh, 28px);
@@ -449,10 +473,7 @@
             padding: 4px;
             border-radius: 8px;
         }
-        .modal-close-icon:hover {
-            color: var(--corp-red);
-            background: var(--corp-red-bg);
-        }
+        .modal-close-icon:hover { color: var(--corp-red); background: var(--corp-red-bg); }
 
         .modal-content-scroll {
             padding: 10px 30px 25px 30px;
@@ -466,7 +487,6 @@
         .modal-content-scroll::-webkit-scrollbar { width: 8px; }
         .modal-content-scroll::-webkit-scrollbar-track { background: transparent; margin: 10px 0; }
         .modal-content-scroll::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 10px; border: 2px solid #fff; }
-        .modal-content-scroll::-webkit-scrollbar-thumb:hover { background-color: #94a3b8; }
 
         .modal-text { 
             font-size: 14px; 
@@ -503,6 +523,39 @@
         }
         .modal-close-btn:hover { opacity: 0.9; }
 
+        /* HISTORY LIST STYLES */
+        .history-date-header {
+            font-size: 13px;
+            font-weight: 800;
+            color: var(--gray-text);
+            text-transform: uppercase;
+            margin-top: 15px;
+            margin-bottom: 8px;
+            border-bottom: 1px solid #e2e8f0;
+            padding-bottom: 4px;
+        }
+        .history-date-header:first-child { margin-top: 0; }
+        
+        .history-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px;
+            background: #f8fafc;
+            border-radius: 12px;
+            margin-bottom: 8px;
+            border: 1px solid transparent;
+        }
+        .history-item.h-on { background: var(--corp-green-bg); border-color: var(--corp-green-border); }
+        .history-item.h-off { background: var(--corp-red-bg); border-color: var(--corp-red-border); }
+        
+        .h-time { font-weight: 700; font-size: 15px; color: var(--corp-black); }
+        .h-status { font-weight: 800; font-size: 12px; text-transform: uppercase; margin-left: auto; margin-right: 10px; }
+        .h-dur { font-size: 11px; font-weight: 600; opacity: 0.7; }
+        
+        .h-on .h-status { color: var(--corp-green); }
+        .h-off .h-status { color: var(--corp-red); }
+
     </style>
 </head>
 <body>
@@ -516,7 +569,6 @@
                     <i data-lucide="activity" style="width: 14px; height: 14px;"></i>
                     Загальна ситуація
                 </div>
-                <!-- Content inserted here via JS -->
                 <div id="analytics-content" class="analytics-content-wrapper">
                     <i data-lucide="loader-2" class="spinner"></i>
                 </div>
@@ -531,15 +583,11 @@
         <div id="card-main" class="location-card">
             <div id="loader-main" class="loader-overlay"><i data-lucide="loader" class="spinner"></i></div>
             
-            <!-- ABSOLUTE ICONS -->
             <div class="icon-top-left">
                 <i data-lucide="landmark" class="side-icon building-icon"></i>
             </div>
-            <div id="icon-main" class="icon-top-right">
-                <!-- Status icon via JS -->
-            </div>
+            <div id="icon-main" class="icon-top-right"></div>
 
-            <!-- Center Content (Full size, distributed evenly) -->
             <div class="info-col">
                 <span class="loc-name">Головний корпус</span>
                 <span class="loc-status-text" id="status-main">...</span>
@@ -547,8 +595,6 @@
                 <div class="timer-container">
                     <span class="data-label" id="label-dur-main">Тривалість</span>
                     <span class="timer-main" id="val-dur-main">0с</span>
-                    
-                    <!-- New Detailed Grid -->
                     <div class="timer-details-grid">
                         <div class="detail-item">
                             <span class="detail-lbl" id="label-start-main">З'явилось</span>
@@ -565,9 +611,17 @@
                     </div>
                 </div>
 
-                <a href="https://docs.google.com/spreadsheets/d/1OtGMcLwI1qeHg6k-EWCr2D9EG_IfR8LpA_J2PWTTPXU/edit" target="_blank" class="meta-link">
-                    <i data-lucide="table" width="12" height="12"></i> Переглянути таблицю записів
-                </a>
+                <!-- Modified Action Row -->
+                <div class="card-actions-row">
+                    <div class="links-group">
+                        <a href="https://docs.google.com/spreadsheets/d/1OtGMcLwI1qeHg6k-EWCr2D9EG_IfR8LpA_J2PWTTPXU/edit" target="_blank" class="icon-link-btn" title="Таблиця">
+                            <i data-lucide="table" width="18" height="18"></i>
+                        </a>
+                    </div>
+                    <button class="history-btn" onclick="openHistory('main')">
+                        <i data-lucide="history" width="16" height="16"></i> Попередні дані
+                    </button>
+                </div>
             </div>
         </div>
 
@@ -575,15 +629,11 @@
         <div id="card-chem" class="location-card">
             <div id="loader-chem" class="loader-overlay"><i data-lucide="loader" class="spinner"></i></div>
             
-            <!-- ABSOLUTE ICONS -->
             <div class="icon-top-left">
                 <i data-lucide="flask-conical" class="side-icon building-icon"></i>
             </div>
-            <div id="icon-chem" class="icon-top-right">
-                <!-- Status icon via JS -->
-            </div>
+            <div id="icon-chem" class="icon-top-right"></div>
 
-            <!-- Center Content (Full size, distributed evenly) -->
             <div class="info-col">
                 <span class="loc-name">Хімічний факультет</span>
                 <span class="loc-status-text" id="status-chem">...</span>
@@ -591,8 +641,6 @@
                 <div class="timer-container">
                     <span class="data-label" id="label-dur-chem">Тривалість</span>
                     <span class="timer-main" id="val-dur-chem">0с</span>
-                    
-                    <!-- New Detailed Grid -->
                     <div class="timer-details-grid">
                         <div class="detail-item">
                             <span class="detail-lbl" id="label-start-chem">З'явилось</span>
@@ -609,14 +657,19 @@
                     </div>
                 </div>
 
-                <!-- WRAPPER FOR DOUBLE LINKS -->
-                <div style="display:flex; flex-direction:column; gap: clamp(4px, 1vh, 8px); align-items:center; width:100%;">
-                    <a href="https://chem.knu.ua" target="_blank" class="meta-link">
-                        <i data-lucide="globe" width="12" height="12"></i> Перевірити сайт власноруч
-                    </a>
-                    <a href="https://docs.google.com/spreadsheets/d/1unSgxK5BXlGoYZsJSBJpESTVIZXJc09acC8GxjGqDIQ/edit?usp=sharing" target="_blank" class="meta-link">
-                        <i data-lucide="table" width="12" height="12"></i> Переглянути таблицю записів
-                    </a>
+                <!-- Modified Action Row -->
+                <div class="card-actions-row">
+                    <div class="links-group">
+                        <a href="https://docs.google.com/spreadsheets/d/1unSgxK5BXlGoYZsJSBJpESTVIZXJc09acC8GxjGqDIQ/edit?usp=sharing" target="_blank" class="icon-link-btn" title="Таблиця">
+                            <i data-lucide="table" width="18" height="18"></i>
+                        </a>
+                        <a href="https://chem.knu.ua" target="_blank" class="icon-link-btn" title="Сайт">
+                            <i data-lucide="globe" width="18" height="18"></i>
+                        </a>
+                    </div>
+                    <button class="history-btn" onclick="openHistory('chem')">
+                        <i data-lucide="history" width="16" height="16"></i> Попередні дані
+                    </button>
                 </div>
             </div>
         </div>
@@ -647,7 +700,7 @@
 
     </div>
 
-    <!-- Info Modal -->
+    <!-- Modal Container -->
     <div id="modal-container" class="modal-overlay" onclick="if(event.target === this) closeModal()">
         <div class="modal-box">
             
@@ -673,16 +726,12 @@
                     <p>Цей бот збирає дані з двох незалежних джерел:</p>
                     <ul style="padding-left: 20px; margin-top: 5px;">
                         <li style="margin-bottom: 8px;">
-                            <strong>Головний корпус:</strong> У кімнаті для нарад встановлено крихітний комп'ютер (Orange Pi Zero), який працює від розетки. Поки є світло, він відправляє сигнал у Google Таблицю.
+                            <strong>Головний корпус:</strong> Orange Pi Zero відправляє сигнал, коли є живлення.
                         </li>
                         <li>
-                            <strong>Хімічний факультет:</strong> Простий онлайн-сервіс перевіряє доступність сайту <b><i>chem.knu.ua</i></b> раз на 15 хвилин.
+                            <strong>Хімічний факультет:</strong> Перевірка доступності сайту кожні 15-20 хвилин.
                         </li>
                     </ul>
-                                        <p>Аналітика поєднує ці дані, а також на основні них може припускати, чи це мережеве живлення, чи генератор.</p>
-                    <p style="margin-top: 10px; font-size: 13px; color: #64748b;">
-                        <u>Примітка</u>: у нічний час робота зводиться лише до перевірки хімічного факультету (аби не створювати зайвий трафік в мережі).<br><br><u>Зауваження</u>: бот лише надає зібрану за графіком інформацію. Його не можна "запитати" чи є світло в цю секунду (аби не перевантажувати ні бота, ні сайт).
-                    </p>
                 </div>
 
                 <!-- CONTENT FOR QR -->
@@ -691,6 +740,11 @@
                         <img id="qr-image" src="" alt="QR Code" class="qr-img">
                         <p style="text-align: center; margin: 0; font-weight: 600;">Відскануйте, щоб відкрити цей бот</p>
                     </div>
+                </div>
+
+                <!-- CONTENT FOR HISTORY -->
+                <div id="modal-body-history" class="modal-text" style="display:none;">
+                    <!-- Injected via JS -->
                 </div>
 
             </div>
@@ -705,15 +759,30 @@
     <script>
         lucide.createIcons();
 
+        /* --- CONFIG & STATE --- */
+        const CONFIG = {
+            main: { id: 'main', sheetId: '1OtGMcLwI1qeHg6k-EWCr2D9EG_IfR8LpA_J2PWTTPXU', timeoutMins: 35 },
+            chem: { id: 'chem', sheetId: '1unSgxK5BXlGoYZsJSBJpESTVIZXJc09acC8GxjGqDIQ', timeoutMins: 20 }
+        };
+
+        const globalState = {
+            main: { isOnline: null, initialized: false, startTime: null, lastSeen: null, rows: [] },
+            chem: { isOnline: null, initialized: false, startTime: null, lastSeen: null, rows: [] }
+        };
+
+        const ICONS = { zap: 'zap', moon: 'moon', check: 'check-circle', off: 'power-off', alert: 'triangle-alert' };
+
         /* --- MODAL LOGIC --- */
         const modalContainer = document.getElementById('modal-container');
         const modalTitle = document.getElementById('modal-title-text');
         const bodyInfo = document.getElementById('modal-body-info');
         const bodyQr = document.getElementById('modal-body-qr');
+        const bodyHistory = document.getElementById('modal-body-history');
 
-        function toggleModal(type) {
+        function toggleModal(type, extraData) {
             bodyInfo.style.display = 'none';
             bodyQr.style.display = 'none';
+            bodyHistory.style.display = 'none';
             
             if (type === 'info') {
                 modalTitle.innerText = "Коротка довідка";
@@ -721,9 +790,12 @@
             } else if (type === 'qr') {
                 modalTitle.innerText = "QR Код";
                 bodyQr.style.display = 'block';
-                // Generate QR using API
                 const url = window.location.href;
                 document.getElementById('qr-image').src = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(url)}`;
+            } else if (type === 'history') {
+                modalTitle.innerText = extraData.title;
+                bodyHistory.style.display = 'block';
+                bodyHistory.innerHTML = extraData.content;
             }
             
             modalContainer.style.display = 'flex';
@@ -734,40 +806,127 @@
             modalContainer.style.display = 'none';
         }
 
-        function openQrModal() {
-            toggleModal('qr');
+        function openQrModal() { toggleModal('qr'); }
+
+        function openHistory(type) {
+            const state = globalState[type];
+            if (!state.initialized || !state.rows || state.rows.length === 0) {
+                alert("Дані ще завантажуються...");
+                return;
+            }
+
+            const title = type === 'main' ? 'Історія: Головний' : 'Історія: Хімфак';
+            const htmlContent = generateHistoryHtml(state.rows, CONFIG[type].timeoutMins, type);
+            
+            toggleModal('history', { title: title, content: htmlContent });
         }
 
-        /* --- SHARE / COPY LOGIC --- */
+        /* --- HISTORY GENERATOR --- */
+        function generateHistoryHtml(rows, timeoutMins, type) {
+            // Simple session grouper
+            // 1. Sort rows (newest first) - already done in processing
+            // 2. Iterate and group based on timeout or status change
+            
+            const sessions = [];
+            if (rows.length === 0) return '<p>Немає даних</p>';
+
+            let currentSession = {
+                start: rows[0].date,
+                end: rows[0].date,
+                status: (type === 'chem' ? rows[0].status : 'ONLINE')
+            };
+
+            for (let i = 0; i < rows.length - 1; i++) {
+                const curr = rows[i];
+                const prev = rows[i+1]; // Older row
+                
+                // Logic differ by type
+                if (type === 'main') {
+                    // Implicit status. If gap < timeout, same session.
+                    const gapMins = (curr.date - prev.date) / 60000;
+                    if (gapMins <= timeoutMins) {
+                        currentSession.start = prev.date; // Extend start time back
+                    } else {
+                        // Gap detected. Push current session.
+                        sessions.push(currentSession);
+                        // The gap itself is an "OFFLINE" period? 
+                        // Simplified: Just show the ON sessions for Main, as we only have ON pings.
+                        // Or maybe show the implied gap. Let's just show KNOWN ON sessions.
+                        currentSession = { start: prev.date, end: prev.date, status: 'ONLINE' };
+                    }
+                } else {
+                    // Chem: Explicit status check
+                    if (curr.status === prev.status) {
+                        currentSession.start = prev.date;
+                    } else {
+                        sessions.push(currentSession);
+                        currentSession = { start: prev.date, end: prev.date, status: prev.status };
+                    }
+                }
+            }
+            sessions.push(currentSession);
+
+            // Group by Date String
+            const grouped = {};
+            sessions.forEach(s => {
+                const dayKey = new Intl.DateTimeFormat('uk-UA', { day: 'numeric', month: 'long' }).format(s.start);
+                if (!grouped[dayKey]) grouped[dayKey] = [];
+                grouped[dayKey].push(s);
+            });
+
+            // HTML Build
+            let html = '';
+            Object.keys(grouped).forEach(dateStr => {
+                html += `<div class="history-date-header">${dateStr}</div>`;
+                grouped[dateStr].forEach(s => {
+                    const isOnline = (s.status === 'ONLINE' || s.status === '1');
+                    const className = isOnline ? 'h-on' : 'h-off';
+                    const label = isOnline ? 'Є СВІТЛО' : 'НЕМАЄ';
+                    
+                    const tStart = formatTimeOnly(s.start);
+                    const tEnd = formatTimeOnly(s.end);
+                    
+                    // Duration
+                    const diffMs = s.end - s.start;
+                    // If single ping or very short, show <1m
+                    let durStr = "";
+                    if (diffMs < 60000) durStr = "< 1хв";
+                    else {
+                        const h = Math.floor(diffMs / 3600000);
+                        const m = Math.floor((diffMs % 3600000) / 60000);
+                        if (h > 0) durStr = `${h}год ${m}хв`;
+                        else durStr = `${m}хв`;
+                    }
+
+                    html += `
+                    <div class="history-item ${className}">
+                        <span class="h-time">${tStart} - ${tEnd}</span>
+                        <span class="h-status">${label}</span>
+                        <span class="h-dur">${durStr}</span>
+                    </div>`;
+                });
+            });
+
+            return html;
+        }
+
+        /* --- SHARE / COPY --- */
         async function shareLink() {
             if (navigator.share) {
-                try {
-                    await navigator.share({
-                        title: 'Світло КНУТШ',
-                        text: 'Перевірка світла в корпусах КНУ',
-                        url: window.location.href,
-                    });
-                } catch (err) { console.log('Error sharing', err); }
-            } else {
-                copyLink();
-                alert('Sharing not supported on this browser, link copied!');
-            }
+                try { await navigator.share({ title: 'Світло КНУТШ', text: 'Перевірка світла', url: window.location.href }); } 
+                catch (err) { }
+            } else { copyLink(); alert('Посилання скопійовано'); }
         }
 
         function copyLink() {
             navigator.clipboard.writeText(window.location.href).then(() => {
                 const icon = document.getElementById('icon-copy');
                 const label = document.getElementById('label-copy');
-                const originalIcon = icon.getAttribute('data-lucide');
-                
-                // Visual feedback
-                icon.innerHTML = '<polyline points="20 6 9 17 4 12"></polyline>'; // simple checkmark svg structure
+                icon.innerHTML = '<polyline points="20 6 9 17 4 12"></polyline>'; 
                 icon.style.color = 'var(--corp-green)';
-                label.innerText = "Скопійовано!";
+                label.innerText = "Скопійовано";
                 label.style.color = 'var(--corp-green)';
-                
                 setTimeout(() => {
-                    // Reset via lucide
                     icon.setAttribute('data-lucide', 'copy');
                     icon.style.color = '';
                     label.innerText = "Копіювати";
@@ -777,71 +936,30 @@
             });
         }
 
-        /* --- SCREENSHOT LOGIC --- */
         function takeScreenshot(isShare) {
             const grid = document.querySelector('.dashboard-grid');
             const btnIcon = document.getElementById(isShare ? 'icon-cam' : 'icon-save');
-            
-            // Visual feedback loading
             btnIcon.style.opacity = 0.5;
-
-            html2canvas(grid, {
-                scale: 2, // High res
-                backgroundColor: '#f1f5f9', // Force bg color
-                useCORS: true
-            }).then(canvas => {
+            html2canvas(grid, { scale: 2, backgroundColor: '#f1f5f9', useCORS: true }).then(canvas => {
                 btnIcon.style.opacity = 1;
-
                 if (!isShare) {
-                    // Download (Floppy)
                     const link = document.createElement('a');
-                    link.download = 'svitlo-knu-dashboard.png';
+                    link.download = 'svitlo-knu.png';
                     link.href = canvas.toDataURL();
                     link.click();
                 } else {
-                    // Share (Camera)
                     canvas.toBlob(async (blob) => {
-                        if (navigator.share && navigator.canShare && navigator.canShare({ files: [new File([blob], 'shot.png', {type: blob.type})] })) {
-                            try {
-                                const file = new File([blob], 'status.png', { type: blob.type });
-                                await navigator.share({
-                                    title: 'Статус Світла',
-                                    files: [file]
-                                });
-                            } catch (err) { console.error(err); }
+                        if (navigator.share && navigator.canShare && navigator.canShare({ files: [new File([blob], 's.png', {type: 'image/png'})] })) {
+                            try { await navigator.share({ files: [new File([blob], 'status.png', { type: 'image/png' })] }); } catch (err) {}
                         } else {
-                            // Fallback: Open in new tab
-                            const newTab = window.open();
-                            newTab.document.body.innerHTML = '<img src="'+canvas.toDataURL()+'" style="width:100%;"/>';
+                            const w = window.open(); w.document.body.innerHTML = '<img src="'+canvas.toDataURL()+'" width="100%">';
                         }
                     });
                 }
-            }).catch(err => {
-                console.error("Screenshot failed", err);
-                btnIcon.style.opacity = 1;
-            });
+            }).catch(() => btnIcon.style.opacity = 1);
         }
 
-        /* --- EXISTING LOGIC BELOW --- */
-
-        const CONFIG = {
-            main: { id: 'main', sheetId: '1OtGMcLwI1qeHg6k-EWCr2D9EG_IfR8LpA_J2PWTTPXU', timeoutMins: 35 },
-            chem: { id: 'chem', sheetId: '1unSgxK5BXlGoYZsJSBJpESTVIZXJc09acC8GxjGqDIQ', timeoutMins: 20 }
-        };
-
-        const globalState = {
-            main: { isOnline: null, initialized: false, startTime: null, lastSeen: null },
-            chem: { isOnline: null, initialized: false, startTime: null, lastSeen: null }
-        };
-
-        const ICONS = {
-            zap: 'zap',
-            moon: 'moon',
-            check: 'check-circle',
-            off: 'power-off',
-            alert: 'triangle-alert'
-        };
-
+        /* --- DATA LOGIC --- */
         function parseGoogleDate(rawValue) {
             if (typeof rawValue === 'string' && rawValue.indexOf('Date') !== -1) {
                 const parts = rawValue.match(/\d+/g).map(Number);
@@ -851,14 +969,13 @@
         }
 
         function formatDuration(diffMs) {
-            const seconds = Math.floor((diffMs / 1000) % 60);
-            const minutes = Math.floor((diffMs / (1000 * 60)) % 60);
-            const hours = Math.floor((diffMs / (1000 * 60 * 60)) % 24);
-            const days = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-
+            const s = Math.floor((diffMs / 1000) % 60);
+            const m = Math.floor((diffMs / (1000 * 60)) % 60);
+            const h = Math.floor((diffMs / (1000 * 60 * 60)) % 24);
+            const d = Math.floor(diffMs / (1000 * 60 * 60 * 24));
             let str = "";
-            if (days > 0) str += `${days}д `;
-            str += `${hours}:${minutes.toString().padStart(2,'0')}:${seconds.toString().padStart(2,'0')}`;
+            if (d > 0) str += `${d}д `;
+            str += `${h}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
             return str;
         }
 
@@ -871,30 +988,16 @@
             ['main', 'chem'].forEach(id => {
                 const state = globalState[id];
                 if (!state.initialized) return;
-
                 const valDur = document.getElementById(`val-dur-${id}`);
-                
-                let diff;
-                if (state.isOnline) {
-                    diff = now - state.startTime;
-                } else {
-                    if (id === 'chem') {
-                        diff = now - state.startTime;
-                    } else {
-                        diff = now - state.lastSeen;
-                    }
-                }
-                
+                let diff = state.isOnline ? (now - state.startTime) : (id === 'chem' ? now - state.startTime : now - state.lastSeen);
                 valDur.innerText = formatDuration(diff);
             });
         }
 
         function updateAnalytics() {
             if (!globalState.main.initialized || !globalState.chem.initialized) return;
-
             const box = document.getElementById('analytics-box');
             const content = document.getElementById('analytics-content');
-            
             const m = globalState.main.isOnline;
             const c = globalState.chem.isOnline;
             
@@ -908,13 +1011,12 @@
                 box.className = 'analytics-box ana-off';
                 content.innerHTML = `<i data-lucide="${ICONS.off}" class="ana-icon-svg"></i> <span class="analytics-text-val">СВІТЛА<br>НЕМАЄ</span>`;
             }
-            
             lucide.createIcons();
         }
 
         function processData(json, conf) {
             try {
-                if (!json.table || !json.table.rows || json.table.rows.length === 0) throw new Error("Empty");
+                if (!json.table || !json.table.rows) throw new Error("Empty");
                 
                 let rows = json.table.rows.map(r => {
                     const dateVal = (r.c && r.c[0] && r.c[0].v) ? parseGoogleDate(r.c[0].v) : null;
@@ -922,27 +1024,24 @@
                     return { date: dateVal, status: statusVal };
                 }).filter(item => item.date);
 
-                if (rows.length === 0) throw new Error("No Dates");
-
+                if (rows.length === 0) throw new Error("No Data");
                 rows.sort((a, b) => b.date - a.date);
                 
+                // Store rows for History
+                globalState[conf.id].rows = rows;
+
                 const lastEntry = rows[0];
                 const now = new Date();
-
                 let sessionStartDate = lastEntry.date;
                 
+                // Determine start of current session for current status card
                 for (let i = 0; i < rows.length - 1; i++) {
                     const curr = rows[i];
                     const prev = rows[i+1];
                     const timeDiff = (curr.date - prev.date) / 60000;
-                    if (timeDiff > conf.timeoutMins) {
-                        sessionStartDate = curr.date;
-                        break;
-                    }
-                    if (conf.id === 'chem' && curr.status !== prev.status) {
-                        sessionStartDate = curr.date;
-                        break;
-                    }
+                    
+                    if (timeDiff > conf.timeoutMins) { sessionStartDate = curr.date; break; }
+                    if (conf.id === 'chem' && curr.status !== prev.status) { sessionStartDate = curr.date; break; }
                     sessionStartDate = prev.date;
                 }
 
@@ -954,14 +1053,11 @@
             }
         }
 
-        function updateCardState(conf, lastDate, startDate, now, explicitStatus = 'ONLINE') {
+        function updateCardState(conf, lastDate, startDate, now, explicitStatus) {
             const id = conf.id;
             const diffMins = Math.floor((now - lastDate) / 60000);
-            
             let isOnline = diffMins <= conf.timeoutMins;
-            if (isOnline && explicitStatus === 'OFFLINE') {
-                isOnline = false;
-            }
+            if (isOnline && explicitStatus === 'OFFLINE') isOnline = false;
 
             globalState[id].isOnline = isOnline;
             globalState[id].initialized = true;
@@ -974,11 +1070,9 @@
             const status = document.getElementById(`status-${id}`);
             const visual = document.getElementById(`icon-${id}`);
             const loader = document.getElementById(`loader-${id}`);
-            
             const labelDur = document.getElementById(`label-dur-${id}`);
             const labelStart = document.getElementById(`label-start-${id}`);
             const valStart = document.getElementById(`val-start-${id}`);
-            
             const valLast = document.getElementById(`val-last-${id}`);
             const valNext = document.getElementById(`val-next-${id}`);
             
@@ -997,33 +1091,20 @@
                 iconName = ICONS.moon;
                 labelDur.innerText = "Відсутнє вже";
                 labelStart.innerText = "Зникло";
-                if (id === 'chem') {
-                    valStart.innerText = formatTimeOnly(startDate); 
-                } else {
-                    valStart.innerText = formatTimeOnly(lastDate);
-                }
+                valStart.innerText = formatTimeOnly(id === 'chem' ? startDate : lastDate);
             }
 
             valLast.innerText = formatTimeOnly(lastDate);
 
             let nextTime = new Date(); 
-            if (id === 'chem') {
-                const interval = 15;
-                const minutesToAdd = interval - (nextTime.getMinutes() % interval);
-                nextTime.setMinutes(nextTime.getMinutes() + minutesToAdd);
-                nextTime.setSeconds(0);
-                valNext.innerText = formatTimeOnly(nextTime);
-            } else {
-                const interval = 30;
-                const minutesToAdd = interval - (nextTime.getMinutes() % interval);
-                nextTime.setMinutes(nextTime.getMinutes() + minutesToAdd);
-                nextTime.setSeconds(0);
-                valNext.innerText = "~" + formatTimeOnly(nextTime);
-            }
+            const interval = id === 'chem' ? 15 : 30;
+            const minutesToAdd = interval - (nextTime.getMinutes() % interval);
+            nextTime.setMinutes(nextTime.getMinutes() + minutesToAdd);
+            nextTime.setSeconds(0);
+            valNext.innerText = (id === 'chem' ? "" : "~") + formatTimeOnly(nextTime);
             
             visual.innerHTML = `<i data-lucide="${iconName}" class="side-icon status-icon ${isOnline ? 'pulse' : ''}"></i>`;
             lucide.createIcons();
-            
             loader.style.display = 'none';
             tickDurations();
         }
@@ -1037,8 +1118,7 @@
                 if(document.getElementById(sId)) document.getElementById(sId).remove();
                 const s = document.createElement('script');
                 s.id = sId;
-                let query = "select%20A";
-                if (key === 'chem') query = "select%20A,C";
+                let query = key === 'chem' ? "select%20A,C" : "select%20A";
                 s.src = `https://docs.google.com/spreadsheets/d/${CONFIG[key].sheetId}/gviz/tq?tqx=responseHandler:cb${key.charAt(0).toUpperCase()+key.slice(1)}&tq=${query}%20order%20by%20A%20desc%20limit%20150&_=${Date.now()}`;
                 document.body.appendChild(s);
             });
