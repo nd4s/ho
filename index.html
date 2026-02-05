@@ -231,17 +231,17 @@
         }
 
         .loc-name {
-            font-size: clamp(12px, 2vh, 24px);
+            font-size: clamp(10px, 1.8vh, 22px);
             font-weight: 800;
             text-transform: uppercase;
             color: var(--corp-black);
             opacity: 0.7;
-            margin-bottom: 0; /* Let justify-content handle spacing */
+            margin-bottom: 0;
         }
 
         .loc-status-text {
-            /* Drastically improved clamp for fitting small screens and filling large ones */
-            font-size: clamp(22px, 5vh, 65px); 
+            /* REDUCED FONT SIZE for fitting more data */
+            font-size: clamp(20px, 4vh, 48px); 
             font-weight: 900;
             line-height: 1;
             margin: 2px 0;
@@ -252,16 +252,16 @@
         /* Timer Box */
         .timer-container {
             background: rgba(255,255,255,0.6);
-            padding: clamp(4px, 1vh, 15px) clamp(10px, 2vw, 30px);
+            padding: clamp(6px, 1vh, 15px) clamp(10px, 2vw, 30px);
             border-radius: 18px;
             display: flex;
             flex-direction: column;
             align-items: center;
             width: 100%;
-            max-width: clamp(180px, 40%, 300px); /* Responsive width */
+            max-width: clamp(220px, 50%, 350px); /* Slightly wider for grid */
             border: 1px solid rgba(0,0,0,0.04);
             backdrop-filter: blur(4px);
-            margin: 4px 0;
+            margin: 2px 0;
         }
 
         .data-label {
@@ -273,21 +273,49 @@
         }
         
         .timer-main {
-            font-size: clamp(20px, 3.5vh, 42px);
+            /* REDUCED FONT SIZE */
+            font-size: clamp(18px, 3vh, 32px);
             font-weight: 800;
             color: var(--corp-blue);
             font-variant-numeric: tabular-nums;
             line-height: 1.1;
         }
 
-        .time-sub-value {
-            font-size: clamp(11px, 1.8vh, 18px);
+        /* New Grid System for details inside timer */
+        .timer-details-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            width: 100%;
+            gap: 5px;
+            margin-top: 6px;
+            border-top: 1px solid rgba(0,0,0,0.08);
+            padding-top: 6px;
+        }
+        
+        .detail-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+
+        .detail-lbl {
+            font-size: clamp(6px, 1vh, 10px);
+            color: #64748b;
+            font-weight: 700;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+
+        .detail-val {
+            font-size: clamp(9px, 1.4vh, 14px);
             font-weight: 700;
             color: var(--corp-black);
+            font-variant-numeric: tabular-nums;
         }
 
         .meta-link {
-            font-size: clamp(10px, 1.5vh, 14px);
+            font-size: clamp(9px, 1.4vh, 13px);
             font-weight: 700;
             color: var(--corp-blue);
             text-decoration: none;
@@ -298,7 +326,6 @@
             background: #ffffff;
             border: 1px solid #cbd5e1;
             border-radius: 30px;
-            /* No fixed margin-top, rely on space-evenly */
         }
 
         /* --- UTILS --- */
@@ -314,9 +341,7 @@
         @keyframes pulse-anim { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
 
         /* 
-           =========================================
-           UPDATED MODAL STYLES
-           ========================================= 
+           MODAL STYLES
         */
         .modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
@@ -333,32 +358,25 @@
             background: #fff;
             border-radius: 24px;
             width: 100%;
-            /* Responsive Width */
-            max-width: 420px; /* Mobile Default */
-            
+            max-width: 420px; 
             display: flex;
             flex-direction: column;
-            
             box-shadow: 0 20px 50px rgba(0,0,0,0.25);
-            max-height: 85vh; /* Keep it within viewport */
-            overflow: hidden; /* Hide outer overflow, scroll internal content */
+            max-height: 85vh; 
+            overflow: hidden; 
             position: relative;
         }
 
-        /* Desktop Width Adjustment */
         @media (min-width: 768px) {
-            .modal-box {
-                max-width: 700px; /* Much wider on desktop */
-            }
+            .modal-box { max-width: 700px; }
         }
 
-        /* Header Area (Fixed at top) */
         .modal-header {
             padding: 25px 30px 10px 30px;
             display: flex;
             justify-content: space-between;
             align-items: flex-start;
-            flex-shrink: 0; /* Prevent shrinking */
+            flex-shrink: 0; 
         }
 
         .modal-title { 
@@ -384,34 +402,19 @@
             background: var(--corp-red-bg);
         }
 
-        /* Scrollable Content Area */
         .modal-content-scroll {
             padding: 10px 30px 25px 30px;
             overflow-y: auto;
             text-align: left;
-            flex-grow: 1; /* Take remaining space */
-            
-            /* Custom Scrollbar Styling (Firefox) */
+            flex-grow: 1; 
             scrollbar-width: thin;
             scrollbar-color: #cbd5e1 transparent;
         }
 
-        /* Custom Scrollbar Styling (Webkit: Chrome, Safari, Edge) */
-        .modal-content-scroll::-webkit-scrollbar {
-            width: 8px;
-        }
-        .modal-content-scroll::-webkit-scrollbar-track {
-            background: transparent;
-            margin: 10px 0;
-        }
-        .modal-content-scroll::-webkit-scrollbar-thumb {
-            background-color: #cbd5e1;
-            border-radius: 10px;
-            border: 2px solid #fff; /* Padding effect */
-        }
-        .modal-content-scroll::-webkit-scrollbar-thumb:hover {
-            background-color: #94a3b8;
-        }
+        .modal-content-scroll::-webkit-scrollbar { width: 8px; }
+        .modal-content-scroll::-webkit-scrollbar-track { background: transparent; margin: 10px 0; }
+        .modal-content-scroll::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 10px; border: 2px solid #fff; }
+        .modal-content-scroll::-webkit-scrollbar-thumb:hover { background-color: #94a3b8; }
 
         .modal-text { 
             font-size: 14px; 
@@ -420,7 +423,6 @@
             margin-bottom: 24px; 
         }
 
-        /* Footer / Big Button Area */
         .modal-footer {
             padding: 0 30px 30px 30px;
             flex-shrink: 0;
@@ -475,8 +477,22 @@
                     <div class="timer-container">
                         <span class="data-label" id="label-dur-main">Тривалість</span>
                         <span class="timer-main" id="val-dur-main">0с</span>
-                        <span class="data-label" id="label-start-main" style="margin-top:4px">З'явилось</span>
-                        <span class="time-sub-value" id="val-start-main">--:--</span>
+                        
+                        <!-- New Detailed Grid -->
+                        <div class="timer-details-grid">
+                            <div class="detail-item">
+                                <span class="detail-lbl" id="label-start-main">З'явилось</span>
+                                <span class="detail-val" id="val-start-main">--:--</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-lbl">Актуально від</span>
+                                <span class="detail-val" id="val-last-main">--:--</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-lbl">Наступна</span>
+                                <span class="detail-val" id="val-next-main">~--:--</span>
+                            </div>
+                        </div>
                     </div>
 
                     <a href="https://docs.google.com/spreadsheets/d/1OtGMcLwI1qeHg6k-EWCr2D9EG_IfR8LpA_J2PWTTPXU/edit" target="_blank" class="meta-link">
@@ -509,8 +525,22 @@
                     <div class="timer-container">
                         <span class="data-label" id="label-dur-chem">Тривалість</span>
                         <span class="timer-main" id="val-dur-chem">0с</span>
-                        <span class="data-label" id="label-start-chem" style="margin-top:4px">З'явилось</span>
-                        <span class="time-sub-value" id="val-start-chem">--:--</span>
+                        
+                        <!-- New Detailed Grid -->
+                        <div class="timer-details-grid">
+                            <div class="detail-item">
+                                <span class="detail-lbl" id="label-start-chem">З'явилось</span>
+                                <span class="detail-val" id="val-start-chem">--:--</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-lbl">Актуально від</span>
+                                <span class="detail-val" id="val-last-chem">--:--</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-lbl">Наступна</span>
+                                <span class="detail-val" id="val-next-chem">--:--</span>
+                            </div>
+                        </div>
                     </div>
 
                     <a href="https://chem.knu.ua" target="_blank" class="meta-link">
@@ -527,16 +557,10 @@
 
     </div>
 
-    <!-- 
-       UPDATED Info Modal Structure 
-       - Header with Cross
-       - Scrollable Content Container
-       - Footer with Button
-    -->
+    <!-- Info Modal -->
     <div id="info-modal" class="modal-overlay" onclick="if(event.target === this) toggleModal(false)">
         <div class="modal-box">
             
-            <!-- Fixed Header -->
             <div class="modal-header">
                 <div class="modal-title">Коротка довідка</div>
                 <div class="modal-close-icon" onclick="toggleModal(false)" aria-label="Close">
@@ -544,7 +568,6 @@
                 </div>
             </div>
 
-            <!-- Scrollable Content -->
             <div class="modal-content-scroll">
                 <div class="modal-text">
                     <h4 style="margin: 0 0 10px 0; color:var(--corp-blue);">Що означають статуси</h4>
@@ -571,7 +594,6 @@
                 </div>
             </div>
             
-            <!-- Fixed Footer -->
             <div class="modal-footer">
                 <button class="modal-close-btn" onclick="toggleModal(false)">Зрозуміло</button>
             </div>
@@ -585,7 +607,6 @@
         function toggleModal(show) {
             const modal = document.getElementById('info-modal');
             modal.style.display = show ? 'flex' : 'none';
-            // Re-render icons when showing modal to ensure the new 'X' icon is drawn
             if (show) lucide.createIcons();
         }
 
@@ -599,7 +620,6 @@
             chem: { isOnline: null, initialized: false, startTime: null, lastSeen: null }
         };
 
-        // Replaced SVG paths with Lucide icon names
         const ICONS = {
             zap: 'zap',
             moon: 'moon',
@@ -628,24 +648,8 @@
             return str;
         }
 
-        function formatSmartDate(date) {
-            const now = new Date();
-            const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-            const startOfDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
-            
-            const msPerDay = 24 * 60 * 60 * 1000;
-            const diffDays = Math.round((startOfToday - startOfDate) / msPerDay);
-            
-            const timeStr = new Intl.DateTimeFormat('uk-UA', { hour: '2-digit', minute: '2-digit' }).format(date);
-            
-            if (diffDays === 0) {
-                return `Сьогодні о ${timeStr}`;
-            } else if (diffDays === 1) {
-                return `Вчора о ${timeStr}`;
-            } else {
-                const dayMonth = new Intl.DateTimeFormat('uk-UA', { day: 'numeric', month: 'long' }).format(date);
-                return `${dayMonth} о ${timeStr}`;
-            }
+        function formatTimeOnly(date) {
+            return new Intl.DateTimeFormat('uk-UA', { hour: '2-digit', minute: '2-digit' }).format(date);
         }
 
         function tickDurations() {
@@ -669,7 +673,6 @@
             const m = globalState.main.isOnline;
             const c = globalState.chem.isOnline;
             
-            // Using Lucide icons via data-lucide attribute
             if (c) {
                 box.className = 'analytics-box ana-city';
                 content.innerHTML = `<i data-lucide="${ICONS.check}" class="ana-icon-svg"></i> <span class="analytics-text-val">МІСЬКЕ<br>СВІТЛО</span>`;
@@ -681,7 +684,6 @@
                 content.innerHTML = `<i data-lucide="${ICONS.off}" class="ana-icon-svg"></i> <span class="analytics-text-val">СВІТЛА<br>НЕМАЄ</span>`;
             }
             
-            // Re-render icons
             lucide.createIcons();
         }
 
@@ -730,7 +732,9 @@
             const labelStart = document.getElementById(`label-start-${id}`);
             const valStart = document.getElementById(`val-start-${id}`);
             
-            // Set up icon string name
+            const valLast = document.getElementById(`val-last-${id}`);
+            const valNext = document.getElementById(`val-next-${id}`);
+            
             let iconName = '';
             
             if (isOnline) {
@@ -740,7 +744,7 @@
                 
                 labelDur.innerText = "Світло є вже";
                 labelStart.innerText = "З'явилось";
-                valStart.innerText = formatSmartDate(startDate);
+                valStart.innerText = formatTimeOnly(startDate);
             } else {
                 card.className = 'location-card status-off';
                 status.innerText = 'НЕМАЄ';
@@ -748,15 +752,26 @@
                 
                 labelDur.innerText = "Відсутнє вже";
                 labelStart.innerText = "Зникло";
-                valStart.innerText = formatSmartDate(lastDate);
+                valStart.innerText = formatTimeOnly(lastDate);
+            }
+
+            // --- Fill Actual & Next ---
+            valLast.innerText = formatTimeOnly(lastDate);
+
+            // Calculate Next
+            // Chem: +15 mins strict schedule
+            // Main: +30 mins window approx
+            let nextTime = new Date(lastDate.getTime());
+            if (id === 'chem') {
+                nextTime.setMinutes(nextTime.getMinutes() + 15);
+                valNext.innerText = formatTimeOnly(nextTime);
+            } else {
+                nextTime.setMinutes(nextTime.getMinutes() + 30);
+                // Main building is approximation
+                valNext.innerText = "~" + formatTimeOnly(nextTime);
             }
             
-            // Inject Lucide Icon element
-            // We apply 'side-icon' and 'status-icon' directly here.
-            // If online, we also add 'pulse' animation class.
             visual.innerHTML = `<i data-lucide="${iconName}" class="side-icon status-icon ${isOnline ? 'pulse' : ''}"></i>`;
-            
-            // Re-render icons to transform <i> into <svg>
             lucide.createIcons();
             
             loader.style.display = 'none';
