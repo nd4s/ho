@@ -57,7 +57,7 @@
             gap: clamp(8px, 1.5vh, 20px);     
             grid-template-columns: 1fr;
             grid-template-rows: auto minmax(0, 1fr) minmax(0, 1fr) auto;
-            max-width: 1800px;
+            max-width: 1920px;
             margin: 0 auto;
         }
 
@@ -211,7 +211,7 @@
             align-items: center;
             justify-content: space-evenly; 
             text-align: center;
-            padding: 0 10px; /* Reduced vertical padding */
+            padding: 0 10px; 
             height: 100%;
             width: 100%;
             z-index: 1; 
@@ -224,29 +224,29 @@
             color: var(--corp-black);
             opacity: 0.7;
             margin-bottom: 0;
-            margin-top: 1vh; /* Reduced from 2vh */
+            margin-top: 1vh; 
         }
 
         .loc-status-text {
             font-size: clamp(18px, 3.5vh, 40px); 
             font-weight: 900;
             line-height: 1;
-            margin: 0; /* Reduced from 2px 0 */
+            margin: 0; 
         }
         .status-on .loc-status-text { color: var(--corp-green); }
         .status-off .loc-status-text { color: var(--corp-red); }
 
-        /* Timer Box */
+        /* Timer Box - UPDATED FOR WIDTH */
         .timer-container {
             background: rgba(255,255,255,0.6);
-            /* Reduced vertical padding to fit larger fonts */
             padding: clamp(2px, 0.6vh, 10px) clamp(8px, 1.5vw, 25px);
             border-radius: 18px;
             display: flex;
             flex-direction: column;
             align-items: center;
-            width: 100%;
-            max-width: clamp(220px, 50%, 350px);
+            /* Wider settings */
+            width: 92%; 
+            max-width: 460px;
             border: 1px solid rgba(0,0,0,0.04);
             backdrop-filter: blur(4px);
             margin: 2px 0;
@@ -273,9 +273,9 @@
             grid-template-columns: 1fr 1fr 1fr;
             width: 100%;
             gap: 5px;
-            margin-top: 2px; /* Tighter */
+            margin-top: 2px;
             border-top: 1px solid rgba(0,0,0,0.08);
-            padding-top: 2px; /* Tighter */
+            padding-top: 2px;
         }
         
         .detail-item {
@@ -285,7 +285,6 @@
             text-align: center;
         }
 
-        /* INCREASED FONT SIZE for readability */
         .detail-lbl {
             font-size: clamp(9px, 1.1vh, 13px);
             color: #64748b;
@@ -294,7 +293,6 @@
             white-space: nowrap;
         }
 
-        /* INCREASED FONT SIZE for readability */
         .detail-val {
             font-size: clamp(12px, 1.6vh, 18px);
             font-weight: 800;
@@ -302,13 +300,14 @@
             font-variant-numeric: tabular-nums;
         }
 
-        /* --- ACTION ROW IN CARDS --- */
+        /* --- ACTION ROW IN CARDS - UPDATED WIDTH --- */
         .card-actions-row {
             display: flex;
-            width: 100%;
-            max-width: clamp(220px, 50%, 350px);
+            /* Match timer width */
+            width: 92%;
+            max-width: 460px;
             justify-content: space-between;
-            align-items: flex-end; /* Align bottom */
+            align-items: flex-end; 
             gap: 10px;
             margin-top: 2px;
         }
@@ -414,6 +413,45 @@
             font-size: clamp(8px, 1vh, 10px);
             font-weight: 700;
             text-transform: uppercase;
+        }
+        
+        /* --- DESKTOP ENHANCEMENTS (Large Screens) --- */
+        @media (min-width: 1024px) {
+            .dashboard-grid {
+                padding: 30px;
+                gap: 30px;
+            }
+            .analytics-box {
+                padding: 20px 40px;
+            }
+            .analytics-text-val { font-size: 48px; }
+            .analytics-title { font-size: 18px; }
+            .ana-icon-svg { width: 80px; height: 80px; }
+            .info-btn { width: 56px; height: 56px; }
+
+            .location-card { border-radius: 32px; }
+            .side-icon { width: 120px; height: 120px; }
+            .loc-name { font-size: 28px; margin-top: 40px; }
+            .loc-status-text { font-size: 64px; margin: 15px 0; }
+            
+            .timer-container {
+                padding: 20px 40px;
+                max-width: 550px;
+            }
+            .data-label { font-size: 16px; margin-bottom: 5px; }
+            .timer-main { font-size: 48px; }
+            .detail-lbl { font-size: 16px; margin-bottom: 4px; }
+            .detail-val { font-size: 24px; }
+            .timer-details-grid { gap: 15px; margin-top: 10px; padding-top: 10px; }
+
+            .card-actions-row { max-width: 550px; margin-top: 10px; }
+            .icon-link-btn { width: 50px; height: 50px; border-radius: 16px; }
+            .history-btn { height: 50px; font-size: 16px; border-radius: 16px; }
+            .sources-label { font-size: 11px; margin-bottom: 4px; }
+            
+            .action-bar { min-height: 90px; border-radius: 24px; }
+            .action-icon { width: 36px; height: 36px; margin-bottom: 6px; }
+            .action-label { font-size: 12px; }
         }
 
         /* --- UTILS --- */
@@ -911,7 +949,7 @@
             });
 
             // HTML Build
-            // LEGEND ADDED HERE
+            // LEGEND
             let html = '<div style="font-size:11px; color:#64748b; margin-bottom:10px; text-align:center;">⚡ — живлення від генератора</div>';
             
             Object.keys(grouped).forEach(dateStr => {
