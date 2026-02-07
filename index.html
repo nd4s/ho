@@ -1139,7 +1139,7 @@
         function openFuture(type) {
             // Updated: Group name stripping "GPV"
             const grp = CONFIG[type].group.replace('GPV', '');
-            const title = `Прогноз: ${type === 'main' ? 'Головний' : 'Хімічний'} (${grp})`;
+            const title = `Прогноз: ${type === 'main' ? 'Головний' : 'Хімічний'} (група ${grp})`;
             
             // Use cached schedule if available
             if (globalState.schedules[type]) {
