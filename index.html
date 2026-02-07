@@ -175,10 +175,7 @@
 
         .location-card.status-on { background: var(--corp-green-bg); border-color: var(--corp-green-border); }
         .location-card.status-off { background: var(--corp-red-bg); border-color: var(--corp-red-border); }
-        /* New style for Inferred */
-        .location-card.status-inferred { background: #ecfccb; border-color: #bef264; } /* Light Lime */
-        .status-inferred .loc-status-text { color: #65a30d; }
-        .status-inferred .status-icon { color: #65a30d; }
+        /* Light Lime for inferred, or just keep green/red as requested. Keeping generic for now, logic handles switching */
 
         /* ICON STYLES */
         .side-icon {
@@ -872,9 +869,16 @@
             chem: { id: 'chem', sheetId: '1unSgxK5BXlGoYZsJSBJpESTVIZXJc09acC8GxjGqDIQ', timeoutMins: 20 }
         };
 
+        // We store REAL values in globalState to prevent overwriting logic loop
         const globalState = {
-            main: { isOnline: null, initialized: false, startTime: null, lastSeen: null, rows: [] },
-            chem: { isOnline: null, initialized: false, startTime: null, lastSeen: null, rows: [] }
+            main: { 
+                isOnline: null, initialized: false, startTime: null, lastSeen: null, rows: [],
+                realLastSeen: null, realStartDate: null, realStatus: null // Added to store actual Main data
+            },
+            chem: { 
+                isOnline: null, initialized: false, startTime: null, lastSeen: null, rows: [],
+                realLastSeen: null, realStartDate: null, realStatus: null 
+            }
         };
 
         const ICONS = { zap: 'zap', moon: 'moon', check: 'check-circle', off: 'power-off', alert: 'triangle-alert' };
@@ -1051,8 +1055,6 @@
                             // Simple heuristic: if there are Chem rows and they are mostly Online
                             if (chemRowsInGap.length > 0) {
                                 // For simplicity in history, if Chem was online in this gap, we mark it Inferred Online
-                                // To make it accurate, we should technically iterate chem rows.
-                                // For this snippet, let's check if there is ANY offline data.
                                 const hasOffline = chemRowsInGap.some(r => r.status === 'OFFLINE' || r.status === '0');
                                 
                                 if (!hasOffline) {
@@ -1249,10 +1251,6 @@
             return new Intl.DateTimeFormat('uk-UA', { weekday: 'short', hour: '2-digit', minute: '2-digit' }).format(date);
         }
 
-        /**
-         * Checks if the given date is within Main Building Working Hours
-         * Mon-Fri, ~07:36 to ~19:30
-         */
         function isWorkingTime(d) {
             const day = d.getDay();
             if (day === 0 || day === 6) return false; // Weekend (Sun=0, Sat=6)
@@ -1260,7 +1258,7 @@
             const mins = d.getHours() * 60 + d.getMinutes();
             // Start: 07:36 = 456
             // End: 19:30 = 1170
-            // Giving a tiny buffer for network delays (e.g. 19:35)
+            // Giving a tiny buffer for network delays
             return (mins >= 456 && mins < 1175);
         }
 
@@ -1300,20 +1298,15 @@
 
             // 4. Working Hours Intervals
             let nextMins = 0;
-            // Zone 1: 07:36 to 10:00 (12m interval) -> 456 to 600
             if (totalMins < 600) {
                 const diff = totalMins - 456;
                 const intervals = Math.floor(diff / 12) + 1;
                 nextMins = 456 + (intervals * 12);
-            }
-            // Zone 2: 10:00 to 13:00 (20m interval) -> 600 to 780
-            else if (totalMins < 780) {
+            } else if (totalMins < 780) {
                 const diff = totalMins - 600;
                 const intervals = Math.floor(diff / 20) + 1;
                 nextMins = 600 + (intervals * 20);
-            }
-            // Zone 3: 13:00 to 19:30 (30m interval) -> 780 to 1170
-            else {
+            } else {
                 const diff = totalMins - 780;
                 const intervals = Math.floor(diff / 30) + 1;
                 nextMins = 780 + (intervals * 30);
@@ -1347,15 +1340,8 @@
                 const state = globalState[id];
                 if (!state.initialized) return;
                 const valDur = document.getElementById(`val-dur-${id}`);
-                // Use state.startTime correctly set by updateCardState
+                // startTime is set by updateCardState to either real start or inferred (Chem) start
                 let diff = now - state.startTime;
-                if (!state.isOnline) {
-                    // For offline/inferred, we measure "Absent for..." or "Inferred for..."
-                    // Logic: if offline, diff is (now - lastSeen). But updateCardState sets startTime based on context.
-                    // For Chem: startTime is when it went offline.
-                    // For Main: handled in updateCardState.
-                    diff = now - state.startTime; 
-                }
                 valDur.innerText = formatDuration(diff);
             });
         }
@@ -1393,8 +1379,10 @@
                 if (rows.length === 0) throw new Error("No Data");
                 rows.sort((a, b) => b.date - a.date);
                 
+                // Store Rows
                 globalState[conf.id].rows = rows;
 
+                // Calculate "Real" Values based on Sheet Data
                 const lastEntry = rows[0];
                 const now = new Date();
                 let sessionStartDate = lastEntry.date;
@@ -1409,7 +1397,21 @@
                     sessionStartDate = prev.date;
                 }
 
+                // Save REAL data to global state (crucial for Main's non-working logic)
+                globalState[conf.id].realLastSeen = lastEntry.date;
+                globalState[conf.id].realStartDate = sessionStartDate;
+                globalState[conf.id].realStatus = lastEntry.status;
+
                 updateCardState(conf, lastEntry.date, sessionStartDate, now, lastEntry.status);
+                
+                // If we just updated Chem, and it's non-working time, force an update on Main 
+                // so it can infer the new status immediately (prevents flickering/lag)
+                if (conf.id === 'chem') {
+                    if (!isWorkingTime(now) && globalState.main.realLastSeen) {
+                        updateCardState(CONFIG.main, globalState.main.realLastSeen, globalState.main.realStartDate, now, globalState.main.realStatus);
+                    }
+                }
+
             } catch (error) {
                 console.error(conf.id, error);
                 document.getElementById(`status-${conf.id}`).innerText = "ПОМИЛКА";
@@ -1419,33 +1421,46 @@
 
         function updateCardState(conf, lastDate, startDate, now, explicitStatus) {
             const id = conf.id;
+            
+            // Default "Real" Calculation
             const diffMins = Math.floor((now - lastDate) / 60000);
             let isOnline = diffMins <= conf.timeoutMins;
             if (isOnline && explicitStatus === 'OFFLINE') isOnline = false;
 
             // --- INFERENCE LOGIC FOR MAIN BUILDING ---
             let isInferred = false;
+            
+            // Variables for Display (separated from logic variables)
+            let displayStatusText = isOnline ? 'Є СВІТЛО' : 'НЕМАЄ';
+            let displayIconName = isOnline ? ICONS.zap : ICONS.moon;
+            let displayStartDate = startDate;
+            let displayLastSeen = lastDate;
+            
             if (id === 'main' && !isWorkingTime(now)) {
-                // If it's non-working time, ignore the sensor silence.
-                // Infer status from Chemistry.
-                const chemState = globalState.chem;
-                if (chemState.initialized) {
-                    isOnline = chemState.isOnline;
-                    // Inherit timestamps from Chem to make duration/start time meaningful
-                    startDate = chemState.startTime;
-                    lastDate = chemState.lastSeen;
+                // Non-Working Time: Check if we have valid Chem data
+                if (globalState.chem.initialized) {
                     isInferred = true;
+                    
+                    // 1. INFER STATE (Visuals + Text)
+                    isOnline = globalState.chem.isOnline; // Override logic state
+                    displayStatusText = isOnline ? 'ПЕВНО Є' : 'ПЕВНО НІ';
+                    displayIconName = isOnline ? ICONS.zap : ICONS.moon;
+                    
+                    // 2. REWRITE PREVIOUS DATA (Start Time / Duration)
+                    // We base the duration on Chem's session, as requested ("rewrite... basing on that logic correctly")
+                    displayStartDate = globalState.chem.startTime; 
+                    
+                    // 3. KEEP FIXED "CHECKED" (Last Seen)
+                    // We explicitly do NOT overwrite displayLastSeen. It remains the `lastDate` passed from Main.
                 }
             }
             // ------------------------------------------
 
             globalState[id].isOnline = isOnline;
             globalState[id].initialized = true;
-            globalState[id].startTime = startDate;
-            globalState[id].lastSeen = lastDate;
+            globalState[id].startTime = displayStartDate; // Update global for ticker
+            globalState[id].lastSeen = displayLastSeen; 
             
-            // Only update global analytics after both are potentially processed
-            // (Timeout or event loop handles this naturally)
             updateAnalytics();
 
             const card = document.getElementById(`card-${id}`);
@@ -1458,38 +1473,20 @@
             const valLast = document.getElementById(`val-last-${id}`);
             const valNext = document.getElementById(`val-next-${id}`);
             
-            let iconName = '';
-            
-            if (isInferred) {
-                card.className = isOnline ? 'location-card status-on' : 'location-card status-off';
-                // Specific text requested
-                status.innerText = isOnline ? 'ПЕВНО Є' : 'ПЕВНО НІ';
-                iconName = isOnline ? ICONS.zap : ICONS.moon;
-                labelDur.innerText = isOnline ? "Триває вже" : "Відсутнє вже";
-                labelStart.innerText = isOnline ? "З'явилось" : "Зникло";
-                valStart.innerText = formatSmartTime(startDate);
-                
-                // Add inferred styling if needed, or stick to Green/Red as requested.
-                // "Change main building state to corresponding icons (green, red)" -> Done via status-on/off class.
+            // Apply Classes
+            if (isOnline) {
+                card.className = 'location-card status-on';
+                labelDur.innerText = isInferred ? "Триває вже" : "Світло є вже";
+                labelStart.innerText = "З'явилось";
             } else {
-                if (isOnline) {
-                    card.className = 'location-card status-on';
-                    status.innerText = 'Є СВІТЛО';
-                    iconName = ICONS.zap;
-                    labelDur.innerText = "Світло є вже";
-                    labelStart.innerText = "З'явилось";
-                    valStart.innerText = formatSmartTime(startDate);
-                } else {
-                    card.className = 'location-card status-off';
-                    status.innerText = 'НЕМАЄ';
-                    iconName = ICONS.moon;
-                    labelDur.innerText = "Відсутнє вже";
-                    labelStart.innerText = "Зникло";
-                    valStart.innerText = formatSmartTime(id === 'chem' ? startDate : lastDate);
-                }
+                card.className = 'location-card status-off';
+                labelDur.innerText = "Відсутнє вже";
+                labelStart.innerText = "Зникло";
             }
 
-            valLast.innerText = formatSmartTime(lastDate);
+            status.innerText = displayStatusText;
+            valStart.innerText = formatSmartTime(displayStartDate);
+            valLast.innerText = formatSmartTime(displayLastSeen);
 
             // Calculate Next Check
             let nextCheckTime;
@@ -1503,7 +1500,7 @@
             if (/\d/.test(nextText)) nextText = "~" + nextText;
             valNext.innerText = nextText;
             
-            visual.innerHTML = `<i data-lucide="${iconName}" class="side-icon status-icon ${isOnline ? 'pulse' : ''}"></i>`;
+            visual.innerHTML = `<i data-lucide="${displayIconName}" class="side-icon status-icon ${isOnline ? 'pulse' : ''}"></i>`;
             lucide.createIcons();
             loader.style.display = 'none';
             tickDurations();
