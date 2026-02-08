@@ -136,39 +136,44 @@
         .ana-off .analytics-text-val { color: var(--corp-red); }
         .ana-off .ana-icon-svg { color: var(--corp-red); }
 
-        /* --- CENTER HINT (REFINED) --- */
-        .analytics-center {
+        /* --- RIGHT SIDE (Hint + Button) --- */
+        .analytics-right {
+            display: flex;
+            align-items: center;
+            gap: clamp(8px, 1.5vw, 15px);
+        }
+
+        /* COMPACT HINT (3 Lines, Aligned Right) */
+        .analytics-hint-box {
             display: flex;
             flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto; 
-            text-align: center;
-            padding: 0 5px;
+            align-items: flex-end; /* Right align */
+            text-align: right;
+            line-height: 0.95;
+            padding-right: 2px;
         }
 
         .hint-lbl {
-            font-size: clamp(10px, 1.4vh, 13px);
+            font-size: clamp(9px, 1.2vh, 11px);
             font-weight: 700;
             color: var(--gray-text);
             text-transform: uppercase;
-            margin-bottom: 3px;
-            line-height: 1;
-        }
-
-        .hint-row {
-            display: flex;
-            align-items: baseline;
-            justify-content: center;
-            gap: 4px;
+            margin-bottom: 2px;
         }
 
         .hint-time {
-            font-size: clamp(16px, 2.2vh, 22px);
-            font-weight: 800;
+            font-size: clamp(18px, 2.8vh, 26px);
+            font-weight: 900;
             color: var(--corp-blue);
-            line-height: 1;
             font-variant-numeric: tabular-nums;
+            margin-bottom: 2px;
+        }
+
+        .hint-sub {
+            font-size: clamp(8px, 1.1vh, 10px);
+            font-weight: 600;
+            color: #94a3b8;
+            text-transform: uppercase;
         }
 
         /* INFO BUTTON */
@@ -184,7 +189,6 @@
             color: var(--corp-blue);
             cursor: pointer;
             flex-shrink: 0;
-            margin-left: 10px;
         }
         .info-btn:hover { border-color: var(--corp-blue); transform: scale(1.05); }
 
@@ -502,8 +506,9 @@
             .info-btn { width: 44px; height: 44px; }
             
             /* Hint Desktop */
-            .hint-lbl { font-size: 14px; }
-            .hint-time { font-size: 24px; }
+            .hint-lbl { font-size: 13px; }
+            .hint-time { font-size: 32px; }
+            .hint-sub { font-size: 13px; }
 
             .location-card { border-radius: 32px; }
             .side-icon { width: 80px; height: 80px; }
@@ -825,17 +830,20 @@
                 </div>
             </div>
             
-            <!-- NEW CENTER STATIC HINT (Minimalistic) -->
-            <div id="analytics-schedule-hint" class="analytics-center" style="display:none;">
-                <span id="hint-label" class="hint-lbl"></span>
-                <div class="hint-row">
+            <!-- RIGHT SIDE CONTAINER (Hint + Button) -->
+            <div class="analytics-right">
+                
+                <!-- COMPACT 3-LINE HINT -->
+                <div id="analytics-schedule-hint" class="analytics-hint-box" style="display:none;">
+                    <span id="hint-label" class="hint-lbl"></span>
                     <span id="hint-time" class="hint-time"></span>
+                    <span class="hint-sub">(місто)</span>
                 </div>
-            </div>
 
-            <button class="info-btn" onclick="toggleModal('info')" aria-label="Info">
-                <i data-lucide="info" width="22" height="22"></i>
-            </button>
+                <button class="info-btn" onclick="toggleModal('info')" aria-label="Info">
+                    <i data-lucide="info" width="22" height="22"></i>
+                </button>
+            </div>
         </div>
 
         <!-- 2. CARD MAIN -->
@@ -1854,7 +1862,7 @@
                 }
             });
 
-            // 3. STATIC HINT UPDATE (Two Lines)
+            // 3. STATIC HINT UPDATE (Compact 3-Line Right Stack)
             const hintData = getScheduleChangeTime();
             const hintDiv = document.getElementById('analytics-schedule-hint');
             if (hintData) {
