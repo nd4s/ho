@@ -1,0 +1,2046 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Світло КНУТШ</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <!-- Lucide Icons (SVGs) -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- HTML2Canvas for Screenshots -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    
+    <style>
+        :root {
+            --corp-red: #dc2626;
+            --corp-red-bg: #fef2f2;
+            --corp-red-border: #fca5a5;
+            
+            --corp-green: #16a34a;
+            --corp-green-bg: #f0fdf4;
+            --corp-green-border: #86efac;
+            
+            --corp-yellow: #ca8a04;
+            --corp-yellow-bg: #fefce8;
+            --corp-yellow-border: #fde047;
+            
+            --corp-black: #171717;
+            --corp-blue: #1e3a8a;
+            --bg-body: #f1f5f9;
+            --card-bg: #ffffff;
+            --gray-text: #64748b;
+        }
+
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            outline: none;
+        }
+
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100vw;
+            height: 100dvh; 
+            overflow: hidden; 
+            background-color: var(--bg-body);
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        /* MASTER GRID */
+        .dashboard-grid {
+            display: grid;
+            width: 100%;
+            height: 100%;
+            padding: clamp(8px, 1.5vh, 20px); 
+            gap: clamp(8px, 1.5vh, 20px);     
+            grid-template-columns: 1fr;
+            grid-template-rows: auto minmax(0, 1fr) minmax(0, 1fr) auto;
+            max-width: 1920px;
+            margin: 0 auto;
+        }
+
+        @media (min-width: 768px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr 1fr;
+                grid-template-rows: auto minmax(0, 1fr) auto; 
+            }
+        }
+
+        /* --- 1. ANALYTICS BOX (Top) --- */
+        .analytics-box {
+            grid-column: 1 / -1; 
+            background: #ffffff;
+            border-radius: 20px;
+            border: 2px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between; 
+            padding: clamp(8px, 1.2vh, 25px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+            flex-shrink: 0; 
+            max-height: 15vh; 
+        }
+
+        .analytics-left {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 4px;
+            flex-shrink: 0;
+        }
+
+        .analytics-content-wrapper {
+            display: flex;
+            align-items: center;
+            gap: clamp(10px, 2vw, 20px);
+        }
+
+        .ana-icon-svg {
+            width: clamp(30px, 5vh, 70px); 
+            height: clamp(30px, 5vh, 70px);
+            flex-shrink: 0; 
+        }
+
+        .analytics-text-val {
+            font-size: clamp(16px, 3.5vh, 36px);
+            font-weight: 900;
+            text-transform: uppercase;
+            line-height: 0.95;
+        }
+
+        .analytics-sub {
+            font-size: 0.6em;
+            opacity: 0.8;
+            font-weight: 600;
+            display: block;
+            margin-top: 2px;
+            line-height: 1.1;
+        }
+
+        /* Theme Classes */
+        .ana-city { background: var(--corp-green-bg); border-color: var(--corp-green-border); }
+        .ana-city .analytics-text-val { color: var(--corp-green); }
+        .ana-city .ana-icon-svg { color: var(--corp-green); }
+
+        .ana-gen { background: #fefce8; border-color: #fde047; }
+        .ana-gen .analytics-text-val { color: var(--corp-yellow); }
+        .ana-gen .ana-icon-svg { color: var(--corp-yellow); }
+
+        .ana-off { background: var(--corp-red-bg); border-color: var(--corp-red-border); }
+        .ana-off .analytics-text-val { color: var(--corp-red); }
+        .ana-off .ana-icon-svg { color: var(--corp-red); }
+
+        /* --- CENTER HINT (REFINED) --- */
+        .analytics-center {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto; 
+            text-align: center;
+            padding: 0 5px;
+        }
+
+        .hint-lbl {
+            font-size: clamp(10px, 1.4vh, 13px);
+            font-weight: 700;
+            color: var(--gray-text);
+            text-transform: uppercase;
+            margin-bottom: 3px;
+            line-height: 1;
+        }
+
+        .hint-row {
+            display: flex;
+            align-items: baseline;
+            justify-content: center;
+            gap: 4px;
+        }
+
+        .hint-time {
+            font-size: clamp(16px, 2.2vh, 22px);
+            font-weight: 800;
+            color: var(--corp-blue);
+            line-height: 1;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .hint-sub {
+            font-size: clamp(10px, 1.4vh, 13px);
+            font-weight: 600;
+            color: #94a3b8;
+        }
+
+        /* INFO BUTTON */
+        .info-btn {
+            background: #ffffff;
+            border: 2px solid #e2e8f0;
+            border-radius: 50%;
+            width: clamp(36px, 5vh, 48px);
+            height: clamp(36px, 5vh, 48px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--corp-blue);
+            cursor: pointer;
+            flex-shrink: 0;
+            margin-left: 10px;
+        }
+        .info-btn:hover { border-color: var(--corp-blue); transform: scale(1.05); }
+
+        /* --- 2. CARDS --- */
+        .location-card {
+            background: var(--card-bg);
+            border-radius: 24px;
+            border: 2px solid transparent;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            position: relative;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
+            height: 100%; 
+        }
+
+        .location-card.status-on { background: var(--corp-green-bg); border-color: var(--corp-green-border); }
+        .location-card.status-off { background: var(--corp-red-bg); border-color: var(--corp-red-border); }
+        .location-card.status-unknown { background: var(--corp-yellow-bg); border-color: var(--corp-yellow-border); }
+
+        /* ICON STYLES */
+        .side-icon {
+            width: clamp(45px, 7vh, 85px);
+            height: clamp(45px, 7vh, 85px);
+            transition: all 0.3s;
+        }
+        
+        .icon-top-left {
+            position: absolute;
+            top: clamp(10px, 2vh, 20px);
+            left: clamp(10px, 2vw, 20px);
+            z-index: 5;
+        }
+        
+        .icon-top-right {
+            position: absolute;
+            top: clamp(10px, 2vh, 20px);
+            right: clamp(10px, 2vw, 20px);
+            z-index: 5;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .building-icon { opacity: 0.7; color: var(--corp-black); }
+        .status-on .status-icon { color: var(--corp-green); filter: drop-shadow(0 0 15px rgba(22, 163, 74, 0.4)); }
+        .status-off .status-icon { color: var(--corp-red); opacity: 0.9; }
+        .status-unknown .status-icon { color: var(--corp-yellow); opacity: 0.9; }
+
+        /* Center Info */
+        .info-col {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-evenly; 
+            text-align: center;
+            padding: 0 10px; 
+            height: 100%;
+            width: 100%;
+            z-index: 1; 
+        }
+
+        .loc-name {
+            font-size: clamp(10px, 1.8vh, 22px);
+            font-weight: 800;
+            text-transform: uppercase;
+            color: var(--corp-black);
+            opacity: 0.7;
+            margin-bottom: 0;
+            margin-top: 1vh; 
+        }
+
+        .loc-status-text {
+            font-size: clamp(18px, 3.5vh, 40px); 
+            font-weight: 900;
+            line-height: 1;
+            margin: 0; 
+        }
+        .status-on .loc-status-text { color: var(--corp-green); }
+        .status-off .loc-status-text { color: var(--corp-red); }
+        .status-unknown .loc-status-text { color: var(--corp-yellow); }
+
+        /* Timer Box */
+        .timer-container {
+            background: rgba(255,255,255,0.6);
+            padding: clamp(6px, 1vh, 12px) clamp(8px, 1.5vw, 20px);
+            border-radius: 18px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 96%; 
+            max-width: 520px;
+            border: 1px solid rgba(0,0,0,0.04);
+            backdrop-filter: blur(4px);
+            margin: 2px 0;
+        }
+
+        .timer-split-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            margin-bottom: 5px;
+            gap: 5px;
+        }
+
+        .timer-half {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex: 1;
+            text-align: center;
+        }
+
+        .timer-divider {
+            width: 1px;
+            height: 30px;
+            background: rgba(0,0,0,0.1);
+            margin: 0 5px;
+        }
+
+        .data-label {
+            font-size: clamp(8px, 1.1vh, 11px);
+            font-weight: 700;
+            color: var(--gray-text);
+            text-transform: uppercase;
+            margin-bottom: 2px;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        .timer-main {
+            font-size: clamp(16px, 2.5vh, 28px);
+            font-weight: 800;
+            color: var(--corp-blue);
+            font-variant-numeric: tabular-nums;
+            line-height: 1.1;
+        }
+
+        .timer-details-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            width: 100%;
+            gap: 5px;
+            margin-top: 2px;
+            border-top: 1px solid rgba(0,0,0,0.08);
+            padding-top: 4px;
+        }
+        
+        .detail-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+
+        .detail-lbl {
+            font-size: clamp(8px, 1vh, 12px);
+            color: #64748b;
+            font-weight: 700;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+
+        .detail-val {
+            font-size: clamp(11px, 1.4vh, 16px);
+            font-weight: 800;
+            color: var(--corp-black);
+            font-variant-numeric: tabular-nums;
+        }
+
+        /* --- ACTION ROW IN CARDS --- */
+        .card-actions-row {
+            display: flex;
+            width: 96%;
+            max-width: 520px;
+            justify-content: space-between;
+            align-items: flex-end; 
+            gap: 10px;
+            margin-top: 2px;
+        }
+
+        .sources-wrapper {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+
+        .sources-label {
+            font-size: 8px;
+            text-transform: uppercase;
+            font-weight: 800;
+            color: var(--gray-text);
+            margin-left: 2px;
+        }
+
+        .links-group {
+            display: flex;
+            gap: 6px;
+        }
+
+        .icon-link-btn {
+            width: clamp(32px, 5vh, 42px);
+            height: clamp(32px, 5vh, 42px);
+            background: #ffffff;
+            border: 1px solid #cbd5e1;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--gray-text);
+            transition: all 0.2s;
+            cursor: pointer;
+            text-decoration: none;
+        }
+        .icon-link-btn:hover { border-color: var(--corp-blue); color: var(--corp-blue); background: #eff6ff; }
+
+        .dual-btn-wrapper {
+            flex-grow: 1;
+            display: flex;
+            gap: 6px;
+            min-width: 0;
+        }
+
+        .history-btn {
+            flex: 1;
+            height: clamp(32px, 5vh, 42px);
+            background: #ffffff;
+            border: 1px solid #cbd5e1;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            font-size: clamp(9px, 1.2vh, 13px);
+            font-weight: 700;
+            color: var(--corp-blue);
+            cursor: pointer;
+            text-transform: uppercase;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.03);
+            transition: all 0.2s;
+            padding: 0 4px;
+            min-width: 0;
+        }
+        .history-btn:hover {
+            background: var(--corp-blue);
+            color: #fff;
+            border-color: var(--corp-blue);
+        }
+        .history-btn span {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        /* --- 3. BOTTOM ACTION BAR --- */
+        .action-bar {
+            grid-column: 1 / -1;
+            background: #ffffff;
+            border-radius: 18px;
+            border: 2px solid #e2e8f0;
+            display: flex;
+            justify-content: space-evenly;
+            align-items: center;
+            padding: clamp(6px, 1vh, 12px);
+            box-shadow: 0 -4px 6px -1px rgba(0, 0, 0, 0.05);
+            height: auto; 
+            min-height: clamp(50px, 8vh, 70px);
+        }
+
+        .action-btn {
+            background: transparent;
+            border: none;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: var(--gray-text);
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 12px;
+            transition: all 0.2s;
+            width: 100%;
+        }
+        .action-btn:hover { background: #f1f5f9; color: var(--corp-blue); }
+        .action-btn:active { transform: scale(0.95); }
+
+        .action-icon {
+            width: clamp(20px, 3vh, 28px);
+            height: clamp(20px, 3vh, 28px);
+            margin-bottom: 2px;
+        }
+
+        .action-label {
+            font-size: clamp(8px, 1vh, 10px);
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+        
+        /* --- DESKTOP ENHANCEMENTS --- */
+        @media (min-width: 1024px) {
+            .dashboard-grid {
+                padding: 20px;
+                gap: 20px;
+                max-width: 1400px;
+            }
+            .analytics-box {
+                padding: 15px 30px;
+                max-height: 12vh;
+            }
+            .analytics-text-val { font-size: 28px; }
+            .ana-icon-svg { width: 50px; height: 50px; }
+            .info-btn { width: 44px; height: 44px; }
+            
+            /* Hint Desktop */
+            .hint-lbl { font-size: 14px; }
+            .hint-time { font-size: 24px; }
+            .hint-sub { font-size: 14px; }
+
+            .location-card { border-radius: 32px; }
+            .side-icon { width: 80px; height: 80px; }
+            .loc-name { font-size: 20px; margin-top: 3vh; }
+            .loc-status-text { font-size: 42px; margin: 10px 0; }
+            
+            .timer-container {
+                padding: 12px 25px;
+                max-width: 550px;
+            }
+            .data-label { font-size: 12px; margin-bottom: 3px; }
+            .timer-main { font-size: 32px; }
+            .detail-lbl { font-size: 12px; margin-bottom: 2px; }
+            .detail-val { font-size: 16px; }
+            .timer-details-grid { gap: 10px; margin-top: 8px; padding-top: 8px; }
+
+            .card-actions-row { max-width: 550px; margin-top: 5px; }
+            .icon-link-btn { width: 42px; height: 42px; border-radius: 14px; }
+            .history-btn { height: 42px; font-size: 14px; border-radius: 14px; }
+            .sources-label { font-size: 10px; margin-bottom: 2px; }
+            
+            .action-bar { min-height: 70px; border-radius: 20px; }
+            .action-icon { width: 28px; height: 28px; margin-bottom: 4px; }
+            .action-label { font-size: 11px; }
+        }
+
+        /* --- UTILS --- */
+        .loader-overlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(255,255,255,0.92);
+            display: flex; justify-content: center; align-items: center;
+            z-index: 10; backdrop-filter: blur(2px); border-radius: 22px;
+        }
+        .spinner { animation: spin 1s linear infinite; color: var(--corp-blue); width: 30px; height: 30px; }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+        .pulse { animation: pulse-anim 2s infinite; }
+        @keyframes pulse-anim { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
+
+        /* MODAL STYLES */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(5px);
+            z-index: 100;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .modal-box {
+            background: #fff;
+            border-radius: 24px;
+            width: 100%;
+            max-width: 420px; 
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.25);
+            max-height: 85vh; 
+            overflow: hidden; 
+            position: relative;
+        }
+        @media (min-width: 768px) { .modal-box { max-width: 700px; } }
+
+        .modal-header {
+            padding: 25px 30px 10px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            flex-shrink: 0; 
+        }
+
+        .modal-title { 
+            font-size: 20px; 
+            font-weight: 800; 
+            color: var(--corp-blue); 
+            margin: 0;
+            padding-right: 10px;
+        }
+
+        .modal-close-icon {
+            color: var(--gray-text);
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 4px;
+            border-radius: 8px;
+        }
+        .modal-close-icon:hover { color: var(--corp-red); background: var(--corp-red-bg); }
+
+        .modal-content-scroll {
+            padding: 10px 30px 25px 30px;
+            overflow-y: auto;
+            text-align: left;
+            flex-grow: 1; 
+            scrollbar-width: thin;
+            scrollbar-color: #cbd5e1 transparent;
+        }
+        .modal-content-scroll::-webkit-scrollbar { width: 8px; }
+        .modal-content-scroll::-webkit-scrollbar-track { background: transparent; margin: 10px 0; }
+        .modal-content-scroll::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 10px; border: 2px solid #fff; }
+
+        .modal-text { 
+            font-size: 14px; 
+            line-height: 1.6; 
+            color: var(--corp-black); 
+            margin-bottom: 24px; 
+        }
+        
+        .qr-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .qr-img {
+            max-width: 200px;
+            width: 100%;
+            height: auto;
+            margin-bottom: 15px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+        }
+
+        .modal-footer {
+            padding: 0 30px 30px 30px;
+            flex-shrink: 0;
+            display: flex;
+            gap: 12px;
+        }
+        .modal-btn {
+            border: none; padding: 14px 0;
+            font-size: 14px; font-weight: 700; border-radius: 14px; cursor: pointer; 
+            flex: 1;
+            transition: opacity 0.2s, background 0.2s;
+            display: flex; align-items: center; justify-content: center; gap: 6px;
+        }
+        .modal-btn:hover { opacity: 0.9; }
+        
+        .btn-close {
+            background: #f1f5f9; 
+            color: var(--gray-text);
+        }
+        .btn-primary {
+            background: var(--corp-blue); 
+            color: #fff;
+        }
+
+        /* --- UPDATED HISTORY LIST STYLES (Minified) --- */
+        .history-date-header {
+            font-size: 12px;
+            font-weight: 800;
+            color: var(--gray-text);
+            text-transform: uppercase;
+            margin-top: 12px;
+            margin-bottom: 6px;
+            border-bottom: 1px solid #e2e8f0;
+            padding-bottom: 2px;
+        }
+        .history-date-header:first-child { margin-top: 0; }
+        
+        .history-item {
+            display: grid;
+            grid-template-columns: auto 1fr auto;
+            align-items: center;
+            padding: 8px 12px; 
+            background: #f8fafc;
+            border-radius: 10px; 
+            margin-bottom: 6px; 
+            border: 1px solid transparent;
+            gap: 10px;
+        }
+        .history-item.h-on { background: var(--corp-green-bg); border-color: var(--corp-green-border); }
+        .history-item.h-off { background: var(--corp-red-bg); border-color: var(--corp-red-border); }
+        
+        .h-time { 
+            font-weight: 700; 
+            font-size: 13px; 
+            color: var(--corp-black); 
+            white-space: nowrap;
+        }
+        .h-status { 
+            font-weight: 800; 
+            font-size: 10px; 
+            text-transform: uppercase; 
+            display: flex; 
+            align-items: center; 
+            justify-content: flex-end;
+            gap: 4px;
+            text-align: right;
+        }
+        .h-dur { 
+            font-size: 10px; 
+            font-weight: 600; 
+            opacity: 0.7; 
+            min-width: 30px;
+            text-align: right;
+            white-space: nowrap;
+        }
+        
+        .h-on .h-status { color: var(--corp-green); }
+        .h-off .h-status { color: var(--corp-red); }
+
+        /* --- NEW STYLES FOR SCHEDULE GRID --- */
+        .sch-timestamp {
+            font-size: 11px;
+            color: var(--gray-text);
+            text-align: center;
+            margin-bottom: 15px;
+            font-weight: 600;
+            background: #f1f5f9;
+            padding: 4px 8px;
+            border-radius: 8px;
+            display: inline-block;
+        }
+        
+        .sch-section-title {
+            font-size: 14px;
+            font-weight: 800;
+            color: var(--corp-blue);
+            margin: 15px 0 8px 0;
+            text-transform: uppercase;
+        }
+        .sch-section-title:first-child { margin-top: 0; }
+        
+        .sch-container {
+            margin-bottom: 25px;
+            position: relative;
+        }
+
+        .sch-bar-row {
+            display: flex;
+            width: 100%;
+            height: 40px;
+            border-radius: 6px;
+            overflow: hidden;
+            background: #cbd5e1;
+            gap: 1px;
+        }
+        
+        .sch-hour-block {
+            flex: 1;
+            display: flex;
+        }
+        
+        .sch-sub-block {
+            flex: 1;
+            height: 100%;
+        }
+
+        .sch-labels-row {
+            position: relative;
+            height: 20px;
+            width: 100%;
+            margin-top: 6px;
+        }
+
+        .sch-label {
+            position: absolute;
+            font-size: 10px;
+            color: var(--corp-black);
+            font-weight: 800;
+            top: 0;
+            transform: translateX(-50%);
+            white-space: nowrap;
+        }
+        
+        .sch-current-line {
+            position: absolute;
+            top: -5px; bottom: 0;
+            width: 2px;
+            background: var(--corp-red);
+            z-index: 10;
+            pointer-events: none;
+        }
+        .sch-current-line::after {
+            content: "ЗАРАЗ";
+            position: absolute;
+            top: -14px; left: 50%; transform: translateX(-50%);
+            font-size: 9px; font-weight: 900; color: var(--corp-red);
+            background: #fff; padding: 0 3px; border-radius: 3px;
+            white-space: nowrap;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+        }
+        
+        .sch-yes { background-color: var(--corp-green); }
+        .sch-no { background-color: var(--corp-red); }
+        .sch-maybe { background-color: var(--corp-yellow); }
+        .sch-null { background-color: #e2e8f0; }
+
+        .sch-legend {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 15px;
+            font-size: 10px;
+            font-weight: 700;
+            color: var(--gray-text);
+            text-transform: uppercase;
+        }
+        .sch-dot {
+            width: 10px; height: 10px; border-radius: 50%; display: inline-block; margin-right: 4px;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="dashboard-grid">
+        
+        <!-- 1. ANALYTICS (Top) -->
+        <div id="analytics-box" class="analytics-box">
+            <div class="analytics-left">
+                <div id="analytics-content" class="analytics-content-wrapper">
+                    <i data-lucide="loader-2" class="spinner"></i>
+                </div>
+            </div>
+            
+            <!-- NEW CENTER STATIC HINT (Minimalistic) -->
+            <div id="analytics-schedule-hint" class="analytics-center" style="display:none;">
+                <span id="hint-label" class="hint-lbl"></span>
+                <div class="hint-row">
+                    <span id="hint-time" class="hint-time"></span>
+                    <span class="hint-sub">(місто)</span>
+                </div>
+            </div>
+
+            <button class="info-btn" onclick="toggleModal('info')" aria-label="Info">
+                <i data-lucide="info" width="22" height="22"></i>
+            </button>
+        </div>
+
+        <!-- 2. CARD MAIN -->
+        <div id="card-main" class="location-card">
+            <div id="loader-main" class="loader-overlay"><i data-lucide="loader" class="spinner"></i></div>
+            
+            <div class="icon-top-left">
+                <i data-lucide="landmark" class="side-icon building-icon"></i>
+            </div>
+            <div id="icon-main" class="icon-top-right"></div>
+
+            <div class="info-col">
+                <span class="loc-name">Головний корпус</span>
+                <span class="loc-status-text" id="status-main">...</span>
+                
+                <div class="timer-container">
+                    <div class="timer-split-row">
+                        <div class="timer-half">
+                            <span class="data-label" id="label-dur-main">Вже триває</span>
+                            <span class="timer-main" id="val-dur-main">0с</span>
+                        </div>
+                        <div class="timer-divider"></div>
+                        <div class="timer-half">
+                            <span class="data-label" id="label-predict-main">Зміна за графіком</span>
+                            <span class="timer-main" id="val-countdown-main">--:--:--</span>
+                        </div>
+                    </div>
+                    
+                    <div class="timer-details-grid">
+                        <div class="detail-item">
+                            <span class="detail-lbl" id="label-start-main">З'явилось</span>
+                            <span class="detail-val" id="val-start-main">--:--</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-lbl">Перевірено</span>
+                            <span class="detail-val" id="val-last-main">--:--</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-lbl">Буде перевірка</span>
+                            <span class="detail-val" id="val-next-main">~--:--</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Modified Action Row -->
+                <div class="card-actions-row">
+                    <div class="sources-wrapper">
+                        <span class="sources-label">Джерела</span>
+                        <div class="links-group">
+                            <a href="https://docs.google.com/spreadsheets/d/1OtGMcLwI1qeHg6k-EWCr2D9EG_IfR8LpA_J2PWTTPXU/edit" target="_blank" class="icon-link-btn" title="Таблиця">
+                                <i data-lucide="table" width="18" height="18"></i>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="dual-btn-wrapper">
+                        <button class="history-btn" onclick="openHistory('main')">
+                            <i data-lucide="history" width="16" height="16"></i> <span>Попереднє</span>
+                        </button>
+                        <button class="history-btn" onclick="openFuture('main')">
+                            <i data-lucide="calendar-clock" width="16" height="16"></i> <span>Подальше</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. CARD CHEM -->
+        <div id="card-chem" class="location-card">
+            <div id="loader-chem" class="loader-overlay"><i data-lucide="loader" class="spinner"></i></div>
+            
+            <div class="icon-top-left">
+                <i data-lucide="flask-conical" class="side-icon building-icon"></i>
+            </div>
+            <div id="icon-chem" class="icon-top-right"></div>
+
+            <div class="info-col">
+                <span class="loc-name">Хімічний факультет</span>
+                <span class="loc-status-text" id="status-chem">...</span>
+                
+                <div class="timer-container">
+                    <div class="timer-split-row">
+                        <div class="timer-half">
+                            <span class="data-label" id="label-dur-chem">Вже триває</span>
+                            <span class="timer-main" id="val-dur-chem">0с</span>
+                        </div>
+                        <div class="timer-divider"></div>
+                        <div class="timer-half">
+                            <span class="data-label" id="label-predict-chem">Зміна за графіком</span>
+                            <span class="timer-main" id="val-countdown-chem">--:--:--</span>
+                        </div>
+                    </div>
+
+                    <div class="timer-details-grid">
+                        <div class="detail-item">
+                            <span class="detail-lbl" id="label-start-chem">З'явилось</span>
+                            <span class="detail-val" id="val-start-chem">--:--</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-lbl">Перевірено</span>
+                            <span class="detail-val" id="val-last-chem">--:--</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-lbl">Буде перевірка</span>
+                            <span class="detail-val" id="val-next-chem">--:--</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Modified Action Row -->
+                <div class="card-actions-row">
+                    <div class="sources-wrapper">
+                        <span class="sources-label">Джерела</span>
+                        <div class="links-group">
+                            <a href="https://docs.google.com/spreadsheets/d/1unSgxK5BXlGoYZsJSBJpESTVIZXJc09acC8GxjGqDIQ/edit?usp=sharing" target="_blank" class="icon-link-btn" title="Таблиця">
+                                <i data-lucide="table" width="18" height="18"></i>
+                            </a>
+                            <a href="https://chem.knu.ua" target="_blank" class="icon-link-btn" title="Сайт">
+                                <i data-lucide="globe" width="18" height="18"></i>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="dual-btn-wrapper">
+                        <button class="history-btn" onclick="openHistory('chem')">
+                            <i data-lucide="history" width="16" height="16"></i> <span>Попереднє</span>
+                        </button>
+                        <button class="history-btn" onclick="openFuture('chem')">
+                            <i data-lucide="calendar-clock" width="16" height="16"></i> <span>Подальше</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 4. ACTION BAR (Bottom) -->
+        <div class="action-bar">
+            <button class="action-btn" onclick="openQrModal()">
+                <i data-lucide="qr-code" class="action-icon"></i>
+                <span class="action-label">QR</span>
+            </button>
+            <button class="action-btn" onclick="shareLink()">
+                <i data-lucide="share-2" class="action-icon"></i>
+                <span class="action-label">Поділитися</span>
+            </button>
+            <button class="action-btn" onclick="copyLink()">
+                <i id="icon-copy" data-lucide="copy" class="action-icon"></i>
+                <span id="label-copy" class="action-label">Копіювати</span>
+            </button>
+            <button class="action-btn" onclick="takeScreenshot(true)">
+                <i id="icon-cam" data-lucide="camera" class="action-icon"></i>
+                <span id="label-cam" class="action-label">Надіслати</span>
+            </button>
+            <button class="action-btn" onclick="takeScreenshot(false)">
+                <i id="icon-save" data-lucide="save" class="action-icon"></i>
+                <span id="label-save" class="action-label">Зберегти</span>
+            </button>
+        </div>
+
+    </div>
+
+    <!-- Modal Container -->
+    <div id="modal-container" class="modal-overlay" onclick="if(event.target === this) closeModal()">
+        <div class="modal-box">
+            
+            <div class="modal-header">
+                <div class="modal-title" id="modal-title-text">Коротка довідка</div>
+                <div class="modal-close-icon" onclick="closeModal()" aria-label="Close">
+                    <i data-lucide="x" width="24" height="24"></i>
+                </div>
+            </div>
+
+            <div class="modal-content-scroll">
+                
+                <!-- CONTENT FOR INFO -->
+                <div id="modal-body-info" class="modal-text" style="display:none;">
+                    <h4 style="margin: 0 0 10px 0; color:var(--corp-blue);">Що означають статуси</h4>
+                    <p>💡 <strong>Міське світло:</strong> Працюють обидва корпуси. Є напруга в міській мережі.</p>
+                    <p>⚡ <strong>Генератор:</strong> Світло є <b><i>лише</i></b> в Головному корпусі (від генератора).</p>
+                    <p>🔴 <strong>Світла немає:</strong> Міського світла немає, а генератор вимкнений.</p>
+                    <hr style="border:0; border-top:1px solid #eee; margin: 15px 0;">
+                    <h4 style="margin: 0 0 10px 0; color:var(--corp-blue);">Як працює бот:</h4>
+                                        <p>Цей бот збирає дані з двох незалежних джерел:</p>
+                    <ul style="padding-left: 20px; margin-top: 5px;">
+                        <li style="margin-bottom: 8px;">
+                            <strong>Головний корпус:</strong> У кімнаті для нарад біля пустих бутлів є крихітний комп'ютер (Orange Pi Zero 512MB), який працює від розетки. Поки є світло, він відправляє сигнал у Google Таблицю (із понеділка по п'ятницю, між 7:36 та 19:30 [невеликий запас до та після робочого часу]). Наполегливе прохання <b><u>не чіпати бота</u></b>! Його розміри та споживання електроенергії менші, ніж у мобільного телефону!
+                        </li>
+                        <li>
+                            <strong>Хімічний факультет та Бібліотека:</strong> Простий онлайн-сервіс перевіряє сайти <b><i>chem.knu.ua</i></b> та <b><i>library.knu.ua</i></b> раз на 15 хвилин і теж пише ці дані в свої Google Таблиці (досить часто для інформативності, але не надто часто аби не навантажувати сайти). Якщо сайт працює - певно світло є у серверній відповідного приміщення, і навпаки - світла там немає, якщо вебсайт недоступний. 
+                        </li>
+                    </ul>
+                                        <p>Аналітика поєднує ці дані, а також на основні них може припускати, чи це мережеве живлення, чи генератор.</p>
+                    <p style="margin-top: 10px; font-size: 13px; color: #64748b;">
+                        <u>Примітка</u>: у неробочий час робота зводиться лише до перевірки вебсайтів (аби не створювати зайвий трафік в мережі).<br><br><u>Зауваження</u>: бот лише надає зібрану за графіком інформацію. Його не можна "запитати" чи є світло в цю секунду (аби не перевантажувати ні бота, ні сайт).
+                    </p>
+                </div>
+
+                <!-- CONTENT FOR QR -->
+                <div id="modal-body-qr" class="modal-text" style="display:none;">
+                    <div class="qr-container">
+                        <img id="qr-image" src="" alt="QR Code" class="qr-img">
+                        <p style="text-align: center; margin: 0; font-weight: 600;">Відскануйте, щоб відкрити цей бот</p>
+                    </div>
+                </div>
+
+                <!-- CONTENT FOR OPI IMAGE -->
+                <div id="modal-body-opi" class="modal-text" style="display:none;">
+                    <div class="qr-container">
+                        <img src="https://i.ytimg.com/vi/JzplWhwjbQI/hq720.jpg" alt="Orange Pi" class="qr-img" style="max-width: 100%; width:auto; border:none;">
+                        <p style="text-align: center; margin-top: 5px; font-weight: 600;">Сервер Головного корпусу</p>
+                    </div>
+                </div>
+
+                <!-- CONTENT FOR HISTORY / LIST -->
+                <div id="modal-body-history" class="modal-text" style="display:none;">
+                    <!-- Injected via JS -->
+                </div>
+
+            </div>
+            
+            <div class="modal-footer">
+                <button class="modal-btn btn-close" onclick="closeModal()">Закрити</button>
+                <button id="btn-save-hist" class="modal-btn btn-primary" onclick="saveHistoryAsPng()" style="display:none;">
+                    <i data-lucide="download" width="16" height="16"></i> Зберегти
+                </button>
+                <button id="btn-show-opi" class="modal-btn btn-primary" onclick="toggleModal('opi')" style="display:none;">
+                    <i data-lucide="image" width="16" height="16"></i> Фото
+                </button>
+                <button id="btn-visit-site" class="modal-btn btn-primary" onclick="window.open('https://bezsvitla.com.ua/kyiv', '_blank')" style="display:none; background: #1e293b;">
+                    <i data-lucide="external-link" width="16" height="16"></i> Графіки
+                </button>
+            </div>
+            
+        </div>
+    </div>
+
+    <script>
+        lucide.createIcons();
+
+        /* --- CONFIG & STATE --- */
+        const CONFIG = {
+            main: { id: 'main', sheetId: '1OtGMcLwI1qeHg6k-EWCr2D9EG_IfR8LpA_J2PWTTPXU', timeoutMins: 35, group: 'GPV15.1' },
+            chem: { id: 'chem', sheetId: '1unSgxK5BXlGoYZsJSBJpESTVIZXJc09acC8GxjGqDIQ', timeoutMins: 20, group: 'GPV15.1' }
+        };
+
+        const globalState = {
+            main: { isOnline: null, initialized: false, startTime: null, lastSeen: null, rows: [] },
+            chem: { isOnline: null, initialized: false, startTime: null, lastSeen: null, rows: [] },
+            schedules: { main: null, chem: null, lastUpdated: null }
+        };
+
+        const ICONS = { zap: 'zap', moon: 'moon', check: 'check-circle', off: 'power-off', alert: 'triangle-alert' };
+
+        /* --- MODAL LOGIC --- */
+        const modalContainer = document.getElementById('modal-container');
+        const modalTitle = document.getElementById('modal-title-text');
+        
+        const bodyInfo = document.getElementById('modal-body-info');
+        const bodyQr = document.getElementById('modal-body-qr');
+        const bodyOpi = document.getElementById('modal-body-opi');
+        const bodyHistory = document.getElementById('modal-body-history');
+        
+        const btnSaveHist = document.getElementById('btn-save-hist');
+        const btnShowOpi = document.getElementById('btn-show-opi');
+        const btnVisitSite = document.getElementById('btn-visit-site');
+
+        function toggleModal(type, extraData) {
+            // Reset all displays
+            bodyInfo.style.display = 'none';
+            bodyQr.style.display = 'none';
+            bodyOpi.style.display = 'none';
+            bodyHistory.style.display = 'none';
+            
+            // Reset buttons
+            btnSaveHist.style.display = 'none';
+            btnShowOpi.style.display = 'none';
+            btnVisitSite.style.display = 'none';
+            
+            if (type === 'info') {
+                modalTitle.innerText = "Коротка довідка";
+                bodyInfo.style.display = 'block';
+                btnShowOpi.style.display = 'flex'; // Show "Photo" button
+            } else if (type === 'opi') {
+                modalTitle.innerText = "Orange Pi Zero 512MB";
+                bodyOpi.style.display = 'block';
+                // Only Close button shown by default
+            } else if (type === 'qr') {
+                modalTitle.innerText = "QR Код";
+                bodyQr.style.display = 'block';
+                const url = window.location.href;
+                document.getElementById('qr-image').src = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(url)}`;
+            } else if (type === 'history') {
+                modalTitle.innerText = extraData.title;
+                bodyHistory.style.display = 'block';
+                bodyHistory.innerHTML = extraData.content;
+                btnSaveHist.style.display = 'flex'; // Show Save button
+                lucide.createIcons();
+            } else if (type === 'future') {
+                modalTitle.innerText = extraData.title;
+                bodyHistory.style.display = 'block';
+                bodyHistory.innerHTML = extraData.content;
+                btnVisitSite.style.display = 'flex'; // Show External Link button
+                lucide.createIcons();
+            }
+            
+            modalContainer.style.display = 'flex';
+            lucide.createIcons();
+        }
+
+        function closeModal() {
+            modalContainer.style.display = 'none';
+        }
+
+        function openQrModal() { toggleModal('qr'); }
+
+        function openHistory(type) {
+            const state = globalState[type];
+            if (!state.initialized || !state.rows || state.rows.length === 0) {
+                alert("Дані ще завантажуються...");
+                return;
+            }
+            const title = type === 'main' ? 'Історія: Головний' : 'Історія: Хімічний';
+            const htmlContent = generateHistoryHtml(state.rows, CONFIG[type].timeoutMins, type);
+            toggleModal('history', { title: title, content: htmlContent });
+        }
+
+        /* --- FUTURE SCHEDULE LOGIC --- */
+        function openFuture(type) {
+            // Updated: Group name stripping "GPV"
+            const grp = CONFIG[type].group.replace('GPV', '');
+            const title = `Прогноз: ${type === 'main' ? 'Головний' : 'Хімічний'} (група ${grp})`;
+            
+            // Use cached schedule if available
+            if (globalState.schedules[type]) {
+                 const html = buildScheduleHtml(globalState.schedules[type], globalState.schedules.lastUpdated);
+                 toggleModal('future', { title: title, content: html });
+            } else {
+                 toggleModal('future', { title: title, content: '<p style="text-align:center; color:#64748b; margin-top:20px;">Завантаження графіку...</p>' });
+                 // If not loaded yet, wait a bit or it will load automatically via fetchSchedules
+            }
+        }
+
+        /* Recursive helper to find the schedule key */
+        function findScheduleRecursive(obj, keyToFind) {
+            if (!obj || typeof obj !== 'object') return null;
+            if (obj.hasOwnProperty(keyToFind)) {
+                const candidate = obj[keyToFind];
+                if (typeof candidate === 'object' && candidate !== null) {
+                    // Check if it looks like a schedule (contains key "1" or "12")
+                    if (candidate["1"] || candidate["12"]) return candidate;
+                }
+            }
+            for (let k in obj) {
+                if (obj.hasOwnProperty(k) && typeof obj[k] === 'object') {
+                    const result = findScheduleRecursive(obj[k], keyToFind);
+                    if (result) return result;
+                }
+            }
+            return null;
+        }
+
+        async function fetchSchedules() {
+            try {
+                const url = "https://raw.githubusercontent.com/Baskerville42/outage-data-ua/refs/heads/main/data/kyiv.json";
+                const resp = await fetch(url + '?t=' + Date.now());
+                if (!resp.ok) throw new Error("Net Err");
+                const data = await resp.json();
+                
+                globalState.schedules.lastUpdated = data.lastUpdated;
+
+                ['main', 'chem'].forEach(type => {
+                    const groupKey = CONFIG[type].group;
+                    let today = null;
+                    let tomorrow = null;
+
+                    if (data.days) {
+                        if (data.days.today) today = findScheduleRecursive(data.days.today, groupKey);
+                        if (data.days.tomorrow) tomorrow = findScheduleRecursive(data.days.tomorrow, groupKey);
+                    } else {
+                        today = findScheduleRecursive(data, groupKey);
+                    }
+                    
+                    globalState.schedules[type] = { today, tomorrow };
+                });
+
+            } catch (e) {
+                console.error("Schedule fetch error", e);
+            }
+        }
+
+        /**
+         * Converts a "1".."24" hour schedule object into a 48-slot array (half-hours).
+         * Logic:
+         * - yes/white/on -> [yes, yes]
+         * - no/black/off -> [no, no]
+         * - first -> [no, yes] (Start of light at :30)
+         * - second -> [yes, no] (End of light at :30)
+         * - maybe/grey -> [maybe, maybe]
+         */
+        function parseScheduleToSegments(scheduleObj) {
+            const slots = [];
+            for (let h = 1; h <= 24; h++) {
+                const val = String(scheduleObj[h] || scheduleObj[String(h)] || "unknown").toLowerCase();
+                
+                if (['yes', 'white', 'on'].includes(val)) {
+                    slots.push('yes', 'yes');
+                } else if (['no', 'black', 'off'].includes(val)) {
+                    slots.push('no', 'no');
+                } else if (val === 'first') {
+                    slots.push('no', 'yes');
+                } else if (val === 'second') {
+                    slots.push('yes', 'no');
+                } else {
+                    slots.push('maybe', 'maybe');
+                }
+            }
+            return slots;
+        }
+
+        function getStatusClass(val) {
+            if (val === 'yes') return 'sch-yes';
+            if (val === 'no') return 'sch-no';
+            return 'sch-maybe';
+        }
+
+        function buildDayGrid(label, scheduleObj) {
+            if (!scheduleObj) return '';
+            
+            const slots = parseScheduleToSegments(scheduleObj); // 48 slots (0..47)
+            
+            let html = `<div class="sch-section-title">${label}</div><div class="sch-container">`;
+            
+            // Current time line for TODAY
+            if (label === 'Сьогодні') {
+                const now = new Date();
+                const totalMins = now.getHours() * 60 + now.getMinutes();
+                const pct = (totalMins / 1440) * 100;
+                html += `<div class="sch-current-line" style="left:${pct}%;"></div>`;
+            }
+
+            // 1. VISUAL BAR (24 Hour Blocks)
+            html += `<div class="sch-bar-row">`;
+            for (let i = 0; i < 24; i++) {
+                const s1 = slots[i * 2];
+                const s2 = slots[i * 2 + 1];
+                
+                html += `<div class="sch-hour-block">`;
+                html += `<div class="sch-sub-block ${getStatusClass(s1)}"></div>`;
+                html += `<div class="sch-sub-block ${getStatusClass(s2)}"></div>`;
+                html += `</div>`;
+            }
+            html += `</div>`; // End bar row
+            
+            // 2. TIMELINE LABELS (Only at stitches)
+            html += `<div class="sch-labels-row">`;
+            
+            // Always show start 00:00
+            html += `<div class="sch-label" style="left:0%; transform:none;">00:00</div>`;
+            
+            for (let i = 1; i < 48; i++) {
+                // Check if status changed compared to previous half-hour
+                if (slots[i] !== slots[i-1]) {
+                    const h = Math.floor(i / 2);
+                    const m = (i % 2) * 30;
+                    const timeStr = `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`;
+                    
+                    const pct = (i / 48) * 100;
+                    
+                    // Style adjustments for edges to prevent overflow
+                    let style = `left:${pct}%;`;
+                    if (pct > 95) style = `right:0; left:auto; transform:none;`; 
+                    
+                    html += `<div class="sch-label" style="${style}">${timeStr}</div>`;
+                }
+            }
+            
+            html += `<div class="sch-label" style="right:0; left:auto; transform:none;">24:00</div>`;
+            
+            html += `</div>`; // End labels row
+            html += `</div>`; // End container
+            
+            return html;
+        }
+
+        function buildScheduleHtml(data, lastUpdated) {
+            let html = "";
+            
+            // Add Timestamp with updated format (words)
+            if (lastUpdated) {
+                const dateObj = new Date(lastUpdated);
+                const timeStr = dateObj.toLocaleString('uk-UA', { 
+                    day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' 
+                });
+                html += `<div style="text-align:center;"><span class="sch-timestamp">Оновлено: ${timeStr}</span></div>`;
+            }
+            
+            if (data.today) html += buildDayGrid("Сьогодні", data.today);
+            else html += '<p>Дані на сьогодні відсутні</p>';
+            
+            if (data.tomorrow) html += buildDayGrid("Завтра", data.tomorrow);
+            
+            // Removed 50/50 from legend
+            html += `
+                <div class="sch-legend">
+                    <div style="display:flex;align-items:center;"><span class="sch-dot sch-yes"></span>СВІТЛО</div>
+                    <div style="display:flex;align-items:center;"><span class="sch-dot sch-no"></span>НЕМАЄ</div>
+                </div>
+            `;
+            return html;
+        }
+
+        // Returns { ms: number, nextVal: string } or null
+        function calculateTimeUntilChange(type) {
+            const data = globalState.schedules[type];
+            if (!data || !data.today) return null;
+
+            const now = new Date();
+            const h = now.getHours();
+            const m = now.getMinutes();
+            const currentSlotIdx = (h * 2) + (m >= 30 ? 1 : 0);
+
+            const todaySlots = parseScheduleToSegments(data.today);
+            // If tomorrow missing, assume all grey or unknown, but try to use if available
+            const tomorrowSlots = data.tomorrow ? parseScheduleToSegments(data.tomorrow) : Array(48).fill('maybe');
+
+            // Find current schedule status
+            const currentSchedStatus = todaySlots[currentSlotIdx]; 
+
+            let targetSlotIdx = -1;
+            let foundInToday = true;
+
+            // Search rest of today
+            for (let i = currentSlotIdx + 1; i < 48; i++) {
+                if (todaySlots[i] !== currentSchedStatus) {
+                    targetSlotIdx = i;
+                    foundInToday = true;
+                    break;
+                }
+            }
+
+            // If not found today, search tomorrow
+            if (targetSlotIdx === -1) {
+                for (let i = 0; i < 48; i++) {
+                    if (tomorrowSlots[i] !== currentSchedStatus) {
+                        targetSlotIdx = i;
+                        foundInToday = false;
+                        break;
+                    }
+                }
+            }
+
+            if (targetSlotIdx === -1) return null; // No change found in near future
+
+            // Convert target slot back to time
+            let targetDate = new Date(now);
+            if (!foundInToday) targetDate.setDate(now.getDate() + 1);
+            
+            const targetH = Math.floor(targetSlotIdx / 2);
+            const targetM = (targetSlotIdx % 2) * 30;
+            
+            targetDate.setHours(targetH, targetM, 0, 0);
+            
+            const nextVal = foundInToday ? todaySlots[targetSlotIdx] : tomorrowSlots[targetSlotIdx];
+
+            // Calculate diff
+            return { ms: targetDate - now, nextVal: nextVal };
+        }
+
+        /* NEW HELPER FOR STATIC TIME VIEW */
+        function getScheduleChangeTime() {
+            // We use 'main' schedule data as proxy for City Grid
+            const data = globalState.schedules.main;
+            if (!data || !data.today) return null;
+
+            const now = new Date();
+            const h = now.getHours();
+            const m = now.getMinutes();
+            const currentSlotIdx = (h * 2) + (m >= 30 ? 1 : 0);
+
+            const todaySlots = parseScheduleToSegments(data.today);
+            const tomorrowSlots = data.tomorrow ? parseScheduleToSegments(data.tomorrow) : Array(48).fill('maybe');
+
+            const currentSchedStatus = todaySlots[currentSlotIdx]; 
+            let targetSlotIdx = -1;
+            let foundInToday = true;
+
+            for (let i = currentSlotIdx + 1; i < 48; i++) {
+                if (todaySlots[i] !== currentSchedStatus) {
+                    targetSlotIdx = i;
+                    foundInToday = true;
+                    break;
+                }
+            }
+            if (targetSlotIdx === -1) {
+                for (let i = 0; i < 48; i++) {
+                    if (tomorrowSlots[i] !== currentSchedStatus) {
+                        targetSlotIdx = i;
+                        foundInToday = false;
+                        break;
+                    }
+                }
+            }
+            if (targetSlotIdx === -1) return null;
+
+            const targetH = Math.floor(targetSlotIdx / 2);
+            const targetM = (targetSlotIdx % 2) * 30;
+            const timeString = `${String(targetH).padStart(2,'0')}:${String(targetM).padStart(2,'0')}`;
+            
+            const nextVal = foundInToday ? todaySlots[targetSlotIdx] : tomorrowSlots[targetSlotIdx];
+            
+            let isNextOn = false;
+            if (['yes', 'white', 'on', 'maybe'].includes(nextVal)) isNextOn = true;
+            
+            return { timeString, isNextOn };
+        }
+
+        function saveHistoryAsPng() {
+            const content = document.getElementById('modal-body-history');
+            const title = document.getElementById('modal-title-text').innerText;
+            const btn = document.getElementById('btn-save-hist');
+            
+            if (!content || content.innerHTML.trim() === "") return;
+
+            // Visual feedback
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i data-lucide="loader-2" class="spinner"></i> Генерую...';
+            lucide.createIcons();
+
+            // Create temporary container for full-list capture (off-screen)
+            const tempDiv = document.createElement('div');
+            tempDiv.style.position = 'absolute';
+            tempDiv.style.top = '-9999px';
+            tempDiv.style.left = '0';
+            tempDiv.style.width = '450px'; // Fixed width for better export
+            tempDiv.style.background = '#ffffff';
+            tempDiv.style.padding = '20px 20px 40px 20px';
+            tempDiv.style.fontFamily = "'Montserrat', sans-serif";
+            tempDiv.style.borderRadius = '12px';
+            
+            // Build the export HTML
+            tempDiv.innerHTML = `
+                <h2 style="color:#1e3a8a; margin:0 0 5px 0; text-align:center; font-size:20px; font-weight:800;">${title}</h2>
+                <div style="margin-bottom:20px; text-align:center; font-size:11px; color:#64748b; font-weight:600;">Згенеровано: ${new Date().toLocaleString('uk-UA')}</div>
+                ${content.innerHTML}
+            `;
+            
+            document.body.appendChild(tempDiv);
+            
+            // Ensure icons are rendered in the clone
+            lucide.createIcons({ root: tempDiv });
+
+            // Capture
+            setTimeout(() => {
+                html2canvas(tempDiv, { scale: 2, backgroundColor: '#ffffff', useCORS: true }).then(canvas => {
+                    const link = document.createElement('a');
+                    link.download = `History_${Date.now()}.png`;
+                    link.href = canvas.toDataURL();
+                    link.click();
+                    
+                    document.body.removeChild(tempDiv);
+                    btn.innerHTML = originalText;
+                    lucide.createIcons();
+                }).catch(err => {
+                    console.error(err);
+                    alert("Помилка збереження");
+                    document.body.removeChild(tempDiv);
+                    btn.innerHTML = originalText;
+                    lucide.createIcons();
+                });
+            }, 100);
+        }
+
+        /* --- HISTORY GENERATOR WITH GAP FILLING --- */
+        function generateHistoryHtml(rows, timeoutMins, type) {
+            // Rows are sorted Newest -> Oldest
+            if (rows.length === 0) return '<p>Немає даних</p>';
+
+            const sessions = [];
+            
+            // Current accumulation session
+            let currentSession = {
+                start: rows[0].date,
+                end: rows[0].date,
+                status: (type === 'chem' ? rows[0].status : 'ONLINE'),
+                isGen: false
+            };
+
+            for (let i = 0; i < rows.length - 1; i++) {
+                const curr = rows[i];
+                const prev = rows[i+1]; // older data point
+                
+                if (type === 'main') {
+                    // GAP DETECTION LOGIC
+                    const gapMins = (curr.date - prev.date) / 60000;
+                    
+                    if (gapMins <= timeoutMins) {
+                        // Continuous session, extend start backwards
+                        currentSession.start = prev.date;
+                    } else {
+                        // Break detected. 
+                        
+                        // Check Generator status for the session we just finished accumulating
+                        if (currentSession.status === 'ONLINE' && globalState.chem.rows.length > 0) {
+                             const checkTime = currentSession.start.getTime();
+                             const cRow = globalState.chem.rows.find(r => r.date.getTime() <= checkTime);
+                             if (cRow && (cRow.status === 'OFFLINE' || cRow.status === '0')) {
+                                 currentSession.isGen = true;
+                             }
+                        }
+                        
+                        sessions.push(currentSession);
+                        
+                        const offlineSession = {
+                            start: prev.date,
+                            end: curr.date, 
+                            status: 'OFFLINE',
+                            isGen: false
+                        };
+                        sessions.push(offlineSession);
+
+                        // Start a new Online session
+                        currentSession = { start: prev.date, end: prev.date, status: 'ONLINE', isGen: false };
+                    }
+
+                } else {
+                    // CHEM LOGIC
+                    if (curr.status === prev.status) {
+                        currentSession.start = prev.date;
+                    } else {
+                        sessions.push(currentSession);
+                        currentSession = { start: prev.date, end: prev.date, status: prev.status, isGen: false };
+                    }
+                }
+            }
+            
+            // Check gen status for the very last session processed
+            if (type === 'main' && currentSession.status === 'ONLINE' && globalState.chem.rows.length > 0) {
+                 const checkTime = currentSession.start.getTime();
+                 const cRow = globalState.chem.rows.find(r => r.date.getTime() <= checkTime);
+                 if (cRow && (cRow.status === 'OFFLINE' || cRow.status === '0')) {
+                     currentSession.isGen = true;
+                 }
+            }
+            sessions.push(currentSession);
+
+            // Group by Date String
+            const grouped = {};
+            sessions.forEach(s => {
+                const dayKey = new Intl.DateTimeFormat('uk-UA', { day: 'numeric', month: 'long' }).format(s.start);
+                if (!grouped[dayKey]) grouped[dayKey] = [];
+                grouped[dayKey].push(s);
+            });
+
+            // HTML Build
+            // LEGEND
+            let html = '<div style="font-size:11px; color:#64748b; margin-bottom:10px; text-align:center;">⚡ — живлення від генератора</div>';
+            
+            Object.keys(grouped).forEach(dateStr => {
+                html += `<div class="history-date-header">${dateStr}</div>`;
+                grouped[dateStr].forEach(s => {
+                    const isOnline = (s.status === 'ONLINE' || s.status === '1');
+                    const className = isOnline ? 'h-on' : 'h-off';
+                    const label = isOnline ? 'Є СВІТЛО' : 'НЕМАЄ';
+                    
+                    // Simple formatter for history items
+                    const timeOnly = (d) => new Intl.DateTimeFormat('uk-UA', { hour: '2-digit', minute: '2-digit' }).format(d);
+                    const tStart = timeOnly(s.start);
+                    const tEnd = timeOnly(s.end);
+                    
+                    const diffMs = s.end - s.start;
+                    let durStr = "";
+                    if (diffMs < 60000) durStr = "< 1хв";
+                    else {
+                        const h = Math.floor(diffMs / 3600000);
+                        const m = Math.floor((diffMs % 3600000) / 60000);
+                        if (h > 0) durStr = `${h}год ${m}хв`;
+                        else durStr = `${m}хв`;
+                    }
+
+                    // Generator Icon Logic
+                    let genIcon = '';
+                    if (s.isGen) {
+                        genIcon = `<i data-lucide="zap" style="width:12px; height:12px; fill:var(--corp-yellow); color:var(--corp-yellow);" title="Генератор"></i>`;
+                    }
+
+                    html += `
+                    <div class="history-item ${className}">
+                        <span class="h-time">${tStart} - ${tEnd}</span>
+                        <span class="h-status">${label} ${genIcon}</span>
+                        <span class="h-dur">${durStr}</span>
+                    </div>`;
+                });
+            });
+
+            return html;
+        }
+
+        /* --- SHARE / COPY --- */
+        async function shareLink() {
+            if (navigator.share) {
+                try { await navigator.share({ title: 'Світло КНУТШ', text: 'Перевірка світла', url: window.location.href }); } 
+                catch (err) { }
+            } else { copyLink(); alert('Посилання скопійовано'); }
+        }
+
+        function copyLink() {
+            navigator.clipboard.writeText(window.location.href).then(() => {
+                const icon = document.getElementById('icon-copy');
+                const label = document.getElementById('label-copy');
+                icon.innerHTML = '<polyline points="20 6 9 17 4 12"></polyline>'; 
+                icon.style.color = 'var(--corp-green)';
+                label.innerText = "Скопійовано";
+                label.style.color = 'var(--corp-green)';
+                setTimeout(() => {
+                    icon.setAttribute('data-lucide', 'copy');
+                    icon.style.color = '';
+                    label.innerText = "Копіювати";
+                    label.style.color = '';
+                    lucide.createIcons();
+                }, 2000);
+            });
+        }
+
+        function takeScreenshot(isShare) {
+            const grid = document.querySelector('.dashboard-grid');
+            const btnIcon = document.getElementById(isShare ? 'icon-cam' : 'icon-save');
+            btnIcon.style.opacity = 0.5;
+            html2canvas(grid, { scale: 2, backgroundColor: '#f1f5f9', useCORS: true }).then(canvas => {
+                btnIcon.style.opacity = 1;
+                if (!isShare) {
+                    const link = document.createElement('a');
+                    link.download = 'svitlo-knu.png';
+                    link.href = canvas.toDataURL();
+                    link.click();
+                } else {
+                    canvas.toBlob(async (blob) => {
+                        if (navigator.share && navigator.canShare && navigator.canShare({ files: [new File([blob], 's.png', {type: 'image/png'})] })) {
+                            try { await navigator.share({ files: [new File([blob], 'status.png', { type: 'image/png' })] }); } catch (err) {}
+                        } else {
+                            const w = window.open(); w.document.body.innerHTML = '<img src="'+canvas.toDataURL()+'" width="100%">';
+                        }
+                    });
+                }
+            }).catch(() => btnIcon.style.opacity = 1);
+        }
+
+        /* --- DATA LOGIC --- */
+        function parseGoogleDate(rawValue) {
+            if (typeof rawValue === 'string' && rawValue.indexOf('Date') !== -1) {
+                const parts = rawValue.match(/\d+/g).map(Number);
+                return new Date(parts[0], parts[1], parts[2], parts[3], parts[4], parts[5]);
+            }
+            return new Date(rawValue);
+        }
+
+        function formatDuration(diffMs) {
+            if (diffMs < 0) diffMs = 0;
+            const s = Math.floor((diffMs / 1000) % 60);
+            const m = Math.floor((diffMs / (1000 * 60)) % 60);
+            const h = Math.floor((diffMs / (1000 * 60 * 60)) % 24);
+            const d = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+            let str = "";
+            if (d > 0) str += `${d}д `;
+            str += `${h}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+            return str;
+        }
+
+        function formatCountdown(diffMs) {
+            if (!diffMs || diffMs < 0) return "--:--:--";
+            const s = Math.floor((diffMs / 1000) % 60);
+            const m = Math.floor((diffMs / (1000 * 60)) % 60);
+            const h = Math.floor((diffMs / (1000 * 60 * 60))); // Allow hours > 24 for "tomorrow"
+            return `${h}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+        }
+
+        /**
+         * Smart Formatter
+         */
+        function formatSmartTime(date, isNextCheck = false) {
+            const now = new Date();
+            const isToday = (date.getDate() === now.getDate() && date.getMonth() === now.getMonth() && date.getFullYear() === now.getFullYear());
+
+            if (isToday) {
+                return new Intl.DateTimeFormat('uk-UA', { hour: '2-digit', minute: '2-digit' }).format(date);
+            }
+
+            if (isNextCheck) {
+                // If it's tomorrow
+                const tomorrow = new Date(now);
+                tomorrow.setDate(now.getDate() + 1);
+                const isTomorrow = (date.getDate() === tomorrow.getDate() && date.getMonth() === tomorrow.getMonth());
+                
+                if (isTomorrow) return "Завтра";
+                // Otherwise return full day name
+                return new Intl.DateTimeFormat('uk-UA', { weekday: 'long' }).format(date).replace(/^\w/, c => c.toUpperCase());
+            }
+
+            // Standard past timestamp format: "пт, 19:30"
+            return new Intl.DateTimeFormat('uk-UA', { weekday: 'short', hour: '2-digit', minute: '2-digit' }).format(date);
+        }
+
+        /*
+         * MAIN BUILDING CHECK LOGIC
+         */
+        function calculateNextMainCheck(now) {
+            const d = new Date(now);
+            const day = d.getDay(); // 0=Sun, 6=Sat
+            const h = d.getHours();
+            const m = d.getMinutes();
+            const totalMins = h * 60 + m;
+
+            const setTime = (targetD, hh, mm) => {
+                const res = new Date(targetD);
+                res.setHours(hh, mm, 0, 0);
+                return res;
+            };
+
+            if (day === 0 || day === 6) {
+                let daysToAdd = (day === 6) ? 2 : 1;
+                const next = new Date(d);
+                next.setDate(d.getDate() + daysToAdd);
+                return setTime(next, 7, 36);
+            }
+
+            if (totalMins >= 1170) {
+                let daysToAdd = (day === 5) ? 3 : 1;
+                const next = new Date(d);
+                next.setDate(d.getDate() + daysToAdd);
+                return setTime(next, 7, 36);
+            }
+
+            if (totalMins < 456) {
+                return setTime(d, 7, 36);
+            }
+
+            let nextMins = 0;
+            if (totalMins < 600) {
+                const diff = totalMins - 456;
+                const intervals = Math.floor(diff / 12) + 1;
+                nextMins = 456 + (intervals * 12);
+            }
+            else if (totalMins < 780) {
+                const diff = totalMins - 600;
+                const intervals = Math.floor(diff / 20) + 1;
+                nextMins = 600 + (intervals * 20);
+            }
+            else {
+                const diff = totalMins - 780;
+                const intervals = Math.floor(diff / 30) + 1;
+                nextMins = 780 + (intervals * 30);
+                
+                if (nextMins > 1170) {
+                     let daysToAdd = (day === 5) ? 3 : 1;
+                     const next = new Date(d);
+                     next.setDate(d.getDate() + daysToAdd);
+                     return setTime(next, 7, 36);
+                }
+            }
+
+            const nextH = Math.floor(nextMins / 60);
+            const nextM = nextMins % 60;
+            return setTime(d, nextH, nextM);
+        }
+
+        /*
+         * CHEM CHECK LOGIC
+         */
+        function calculateNextChemCheck(now) {
+            const d = new Date(now);
+            const m = d.getMinutes();
+            const remainder = m % 15;
+            const add = 15 - remainder;
+            const next = new Date(d.getTime() + add * 60000);
+            next.setSeconds(0);
+            next.setMilliseconds(0);
+            return next;
+        }
+
+        function tickDurations() {
+            const now = new Date();
+            ['main', 'chem'].forEach(id => {
+                const state = globalState[id];
+                if (!state.initialized) return;
+                
+                // 1. Existing Duration Logic
+                const valDur = document.getElementById(`val-dur-${id}`);
+                let diff = state.isOnline ? (now - state.startTime) : (id === 'chem' ? now - state.startTime : now - state.lastSeen);
+                valDur.innerText = formatDuration(diff);
+
+                // 2. New Countdown Logic (Time until schedule change)
+                const valCount = document.getElementById(`val-countdown-${id}`);
+                const labelPred = document.getElementById(`label-predict-${id}`);
+                
+                const calcResult = calculateTimeUntilChange(id);
+
+                if (calcResult !== null) {
+                    valCount.innerText = formatCountdown(calcResult.ms);
+                    
+                    // Determine semantic prediction based strictly on schedule
+                    const nextVal = calcResult.nextVal;
+                    let labelHtml = "";
+
+                    if (nextVal === 'yes' || nextVal === 'maybe' || nextVal === 'on' || nextVal === 'white') {
+                        // Prediction: Will Turn ON
+                        // Use City Icon (building-2)
+                        labelHtml = `<i data-lucide="building-2" style="width:10px;height:10px;margin-right:3px;vertical-align:middle;"></i>Увімкнуть`;
+                    } else {
+                        // Prediction: Will Turn OFF
+                        // Use City Icon (building-2)
+                        labelHtml = `<i data-lucide="building-2" style="width:10px;height:10px;margin-right:3px;vertical-align:middle;"></i>Вимкнуть`;
+                    }
+                    
+                    labelPred.innerHTML = labelHtml;
+                    lucide.createIcons({ root: labelPred });
+                } else {
+                    valCount.innerText = "--:--:--";
+                    labelPred.innerText = "Зміна за графіком";
+                }
+            });
+
+            // 3. STATIC HINT UPDATE (Two Lines)
+            const hintData = getScheduleChangeTime();
+            const hintDiv = document.getElementById('analytics-schedule-hint');
+            if (hintData) {
+                hintDiv.style.display = 'flex';
+                const label = document.getElementById('hint-label');
+                const time = document.getElementById('hint-time');
+                
+                label.innerText = (hintData.isNextOn ? "СВІТЛО БУДЕ ВІД" : "СВІТЛО ЗНИКНЕ О") + ":";
+                time.innerText = hintData.timeString;
+            } else {
+                hintDiv.style.display = 'none';
+            }
+        }
+
+        function updateAnalytics() {
+            if (!globalState.main.initialized || !globalState.chem.initialized) return;
+            const box = document.getElementById('analytics-box');
+            const content = document.getElementById('analytics-content');
+            const m = globalState.main.isOnline;
+            const c = globalState.chem.isOnline;
+            
+            if (c) {
+                box.className = 'analytics-box ana-city';
+                content.innerHTML = `<i data-lucide="${ICONS.check}" class="ana-icon-svg"></i> <span class="analytics-text-val">МІСЬКЕ<br>СВІТЛО</span>`;
+            } else if (m && !c) {
+                box.className = 'analytics-box ana-gen';
+                content.innerHTML = `<i data-lucide="${ICONS.alert}" class="ana-icon-svg"></i> <div style="display:flex;flex-direction:column;"><span class="analytics-text-val">ГЕНЕРАТОР</span><span class="analytics-sub">ТІЛЬКИ ГОЛОВНИЙ КОРПУС</span></div>`;
+            } else {
+                box.className = 'analytics-box ana-off';
+                content.innerHTML = `<i data-lucide="${ICONS.off}" class="ana-icon-svg"></i> <span class="analytics-text-val">СВІТЛА<br>НЕМАЄ</span>`;
+            }
+            lucide.createIcons();
+        }
+
+        function processData(json, conf) {
+            try {
+                if (!json.table || !json.table.rows) throw new Error("Empty");
+                
+                let rows = json.table.rows.map(r => {
+                    const dateVal = (r.c && r.c[0] && r.c[0].v) ? parseGoogleDate(r.c[0].v) : null;
+                    const statusVal = (conf.id === 'chem' && r.c && r.c[1]) ? r.c[1].v : 'ONLINE';
+                    return { date: dateVal, status: statusVal };
+                }).filter(item => item.date);
+
+                if (rows.length === 0) throw new Error("No Data");
+                rows.sort((a, b) => b.date - a.date);
+                
+                globalState[conf.id].rows = rows;
+
+                const lastEntry = rows[0];
+                const now = new Date();
+                let sessionStartDate = lastEntry.date;
+                
+                for (let i = 0; i < rows.length - 1; i++) {
+                    const curr = rows[i];
+                    const prev = rows[i+1];
+                    const timeDiff = (curr.date - prev.date) / 60000;
+                    
+                    if (timeDiff > conf.timeoutMins) { sessionStartDate = curr.date; break; }
+                    if (conf.id === 'chem' && curr.status !== prev.status) { sessionStartDate = curr.date; break; }
+                    sessionStartDate = prev.date;
+                }
+
+                updateCardState(conf, lastEntry.date, sessionStartDate, now, lastEntry.status);
+            } catch (error) {
+                console.error(conf.id, error);
+                document.getElementById(`status-${conf.id}`).innerText = "ПОМИЛКА";
+                document.getElementById(`loader-${conf.id}`).style.display = 'none';
+            }
+        }
+
+        function updateCardState(conf, lastDate, startDate, now, explicitStatus) {
+            const id = conf.id;
+            const diffMins = Math.floor((now - lastDate) / 60000);
+            let isOnline = diffMins <= conf.timeoutMins;
+            if (isOnline && explicitStatus === 'OFFLINE') isOnline = false;
+
+            globalState[id].isOnline = isOnline;
+            globalState[id].initialized = true;
+            globalState[id].startTime = startDate;
+            globalState[id].lastSeen = lastDate;
+            
+            updateAnalytics();
+
+            const card = document.getElementById(`card-${id}`);
+            const status = document.getElementById(`status-${id}`);
+            const visual = document.getElementById(`icon-${id}`);
+            const loader = document.getElementById(`loader-${id}`);
+            const labelDur = document.getElementById(`label-dur-${id}`);
+            const labelStart = document.getElementById(`label-start-${id}`);
+            const valStart = document.getElementById(`val-start-${id}`);
+            const valLast = document.getElementById(`val-last-${id}`);
+            const valNext = document.getElementById(`val-next-${id}`);
+            
+            let iconName = '';
+            
+            // Check for Main Building "Sleep" mode
+            let isUnknown = false;
+            if (id === 'main' && !isOnline) {
+                // Check time
+                const day = now.getDay();
+                const mins = now.getHours() * 60 + now.getMinutes();
+                // Mon(1)-Fri(5), 07:36(456)-19:30(1170)
+                const isWorkingTime = (day >= 1 && day <= 5) && (mins >= 456 && mins <= 1170);
+                if (!isWorkingTime) isUnknown = true;
+            }
+
+            let durLabelHtml = '';
+
+            if (isOnline) {
+                card.className = 'location-card status-on';
+                status.innerText = 'Є СВІТЛО';
+                iconName = ICONS.zap;
+                labelStart.innerText = "З'явилось";
+                valStart.innerText = formatSmartTime(startDate);
+                durLabelHtml = `<i data-lucide="lightbulb" style="width:10px;height:10px;margin-right:3px;vertical-align:middle;fill:currentColor;"></i>Наявне`;
+            } else if (isUnknown) {
+                card.className = 'location-card status-unknown';
+                status.innerText = 'НЕВІДОМО';
+                iconName = ICONS.alert;
+                labelStart.innerText = "Зникло";
+                valStart.innerText = formatSmartTime(id === 'chem' ? startDate : lastDate);
+                durLabelHtml = `<i data-lucide="lightbulb" style="width:10px;height:10px;margin-right:3px;vertical-align:middle;"></i>Відсутнє`;
+            } else {
+                card.className = 'location-card status-off';
+                status.innerText = 'НЕМАЄ';
+                iconName = ICONS.moon;
+                labelStart.innerText = "Зникло";
+                valStart.innerText = formatSmartTime(id === 'chem' ? startDate : lastDate);
+                durLabelHtml = `<i data-lucide="lightbulb" style="width:10px;height:10px;margin-right:3px;vertical-align:middle;"></i>Відсутнє`;
+            }
+            
+            labelDur.innerHTML = durLabelHtml;
+
+            valLast.innerText = formatSmartTime(lastDate);
+
+            // Calculate Next Check based on specific building logic
+            let nextCheckTime;
+            if (id === 'main') {
+                nextCheckTime = calculateNextMainCheck(now);
+            } else {
+                nextCheckTime = calculateNextChemCheck(now);
+            }
+            
+            let nextText = formatSmartTime(nextCheckTime, true);
+            if (/\d/.test(nextText)) {
+                nextText = "~" + nextText;
+            }
+            valNext.innerText = nextText;
+            
+            visual.innerHTML = `<i data-lucide="${iconName}" class="side-icon status-icon ${isOnline ? 'pulse' : ''}"></i>`;
+            lucide.createIcons();
+            loader.style.display = 'none';
+            tickDurations();
+        }
+
+        window.cbMain = (json) => processData(json, CONFIG.main);
+        window.cbChem = (json) => processData(json, CONFIG.chem);
+
+        function fetchData() {
+            ['main', 'chem'].forEach(key => {
+                const sId = `script-${key}`;
+                if(document.getElementById(sId)) document.getElementById(sId).remove();
+                const s = document.createElement('script');
+                s.id = sId;
+                let query = key === 'chem' ? "select%20A,C" : "select%20A";
+                s.src = `https://docs.google.com/spreadsheets/d/${CONFIG[key].sheetId}/gviz/tq?tqx=responseHandler:cb${key.charAt(0).toUpperCase()+key.slice(1)}&tq=${query}%20order%20by%20A%20desc%20limit%20150&_=${Date.now()}`;
+                document.body.appendChild(s);
+            });
+        }
+
+        fetchData();
+        fetchSchedules(); // Start loading schedules
+        setInterval(fetchData, 5000);
+        setInterval(tickDurations, 1000);
+        
+        // Refresh schedules every hour just in case
+        setInterval(fetchSchedules, 3600000); 
+    </script>
+</body>
+</html>
