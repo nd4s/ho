@@ -171,12 +171,6 @@
             font-variant-numeric: tabular-nums;
         }
 
-        .hint-sub {
-            font-size: clamp(10px, 1.4vh, 13px);
-            font-weight: 600;
-            color: #94a3b8;
-        }
-
         /* INFO BUTTON */
         .info-btn {
             background: #ffffff;
@@ -510,7 +504,6 @@
             /* Hint Desktop */
             .hint-lbl { font-size: 14px; }
             .hint-time { font-size: 24px; }
-            .hint-sub { font-size: 14px; }
 
             .location-card { border-radius: 32px; }
             .side-icon { width: 80px; height: 80px; }
@@ -837,7 +830,6 @@
                 <span id="hint-label" class="hint-lbl"></span>
                 <div class="hint-row">
                     <span id="hint-time" class="hint-time"></span>
-                    <span class="hint-sub">(місто)</span>
                 </div>
             </div>
 
@@ -1870,7 +1862,7 @@
                 const label = document.getElementById('hint-label');
                 const time = document.getElementById('hint-time');
                 
-                label.innerText = (hintData.isNextOn ? "СВІТЛО БУДЕ ВІД" : "СВІТЛО ЗНИКНЕ О") + ":";
+                label.innerText = (hintData.isNextOn ? "БУДЕ ВІД" : "ЗНИКНЕ О") + ":";
                 time.innerText = hintData.timeString;
             } else {
                 hintDiv.style.display = 'none';
